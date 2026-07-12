@@ -1,13 +1,14 @@
 export type ViewState = 
   | 'dashboard' 
-  | 'copilot' 
-  | 'branches' 
-  | 'stock' 
-  | 'analytics' 
-  | 'settings'
-  | 'debts'
-  | 'alerts'
-  | 'reports';
+  | 'branches'
+  | 'inventory'
+  | 'customers'
+  | 'employees'
+  | 'finance'
+  | 'reports'
+  | 'expenses'
+  | 'mobile_money'
+  | 'settings';
 
 export interface KPI {
   title: string;

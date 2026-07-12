@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const imports = `import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Building2, Building, Users, Shield, Bell, CreditCard,
@@ -12,7 +14,9 @@ import {
   ToggleRight, Check, CheckSquare
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+`;
 
+const components = `
 const SettingsSection = ({ title, description, children, action }: { title: string, description: string, children: React.ReactNode, action?: React.ReactNode }) => (
   <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
     <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center gap-4">
@@ -944,3 +948,6 @@ export function Settings() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/views/Settings.tsx', imports + components);

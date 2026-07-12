@@ -3,7 +3,7 @@ import { Branch, KPI, Alert, StockItem, Debt } from './types';
 export const mockKPIs: KPI[] = [
   { title: 'Business Health', value: 92, change: 2.4, trend: 'up', format: 'percentage' },
   { title: 'Revenue Today', value: 145230, change: 12.5, trend: 'up', format: 'currency' },
-  { title: 'Profit Today', value: 42100, change: -1.2, trend: 'down', format: 'currency' },
+  { title: 'Profit Today', value: 43100, change: -1.2, trend: 'down', format: 'currency' },
   { title: 'Cash Balance', value: 1250000, change: 5.1, trend: 'up', format: 'currency' },
 ];
 
@@ -39,52 +39,64 @@ export const mockStock: StockItem[] = [
   { id: '5', product: 'Magic Keyboard Folio', sku: 'MKF-129', barcode: '194253987654', quantity: 8, minQuantity: 5, branch: 'Airport Hub', price: 299 },
 ];
 
-export const mockDebts: Debt[] = [
-  { id: '1', customerName: 'TechSolutions Inc.', amount: 15400, dueDate: '2023-11-15', status: 'overdue', branch: 'Downtown HQ', phone: '+1 555-0100' },
-  { id: '2', customerName: 'Local Education Dept', amount: 42000, dueDate: '2023-12-01', status: 'pending', branch: 'Westside Plaza', phone: '+1 555-0199' },
-  { id: '3', customerName: 'Sarah Williams', amount: 850, dueDate: '2023-11-20', status: 'pending', branch: 'North Hills', phone: '+1 555-0211' },
-  { id: '4', customerName: 'Marcus Johnson', amount: 1200, dueDate: '2023-10-30', status: 'overdue', branch: 'Airport Hub', phone: '+1 555-0344' },
+export const mockInventoryOwner = [
+  { id: '1', name: 'MacBook Pro M3 Max 36GB', category: 'Laptops', initialQty: 50, soldQty: 48, remainingQty: 2, unitCost: 2800, sellPrice: 3499, totalValue: 5600, soldValue: 167952, profit: 33552, trend: [20, 25, 22, 30, 45, 40, 48] },
+  { id: '2', name: 'iPhone 15 Pro Max 256GB', category: 'Phones', initialQty: 200, soldQty: 155, remainingQty: 45, unitCost: 900, sellPrice: 1199, totalValue: 40500, soldValue: 185845, profit: 46345, trend: [50, 70, 90, 110, 130, 145, 155] },
+  { id: '3', name: 'iPad Pro 12.9" M2', category: 'Tablets', initialQty: 100, soldQty: 100, remainingQty: 0, unitCost: 850, sellPrice: 1099, totalValue: 0, soldValue: 109900, profit: 24900, trend: [10, 25, 45, 60, 80, 95, 100] },
+  { id: '4', name: 'AirPods Pro 2nd Gen', category: 'Audio', initialQty: 300, soldQty: 288, remainingQty: 12, unitCost: 150, sellPrice: 249, totalValue: 1800, soldValue: 71712, profit: 28512, trend: [40, 80, 120, 180, 220, 260, 288] },
 ];
 
-export const forecastData = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() + i + 1);
-  const baseRevenue = 14000 + (i * 150) + (Math.sin(i / 2) * 2000);
-  const baseProfit = baseRevenue * 0.3 + (Math.random() * 500);
-  return {
-    name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    predictedRevenue: Math.floor(baseRevenue),
-    revenueUpper: Math.floor(baseRevenue + (i * 100) + 1000),
-    revenueLower: Math.floor(baseRevenue - (i * 100) - 1000),
-    predictedProfit: Math.floor(baseProfit),
-  };
-});
+export const mockCashiers = [
+  { id: 'c1', name: 'Amina Ali', branch: 'Downtown HQ', todaySales: 4500, weeklySales: 28000, transactions: 142, performance: 'excellent', salesTrend: [{day: 'Mon', sales: 4000}, {day: 'Tue', sales: 4200}, {day: 'Wed', sales: 3800}, {day: 'Thu', sales: 4800}, {day: 'Fri', sales: 5100}, {day: 'Sat', sales: 6100}, {day: 'Sun', sales: 4500}], hourlySales: [{hour: '8AM', sales: 200}, {hour: '10AM', sales: 500}, {hour: '12PM', sales: 1200}, {hour: '2PM', sales: 800}, {hour: '4PM', sales: 1500}, {hour: '6PM', sales: 300}] },
+  { id: 'c2', name: 'Omar Hassan', branch: 'Westside Plaza', todaySales: 3200, weeklySales: 19500, transactions: 98, performance: 'good', salesTrend: [{day: 'Mon', sales: 2500}, {day: 'Tue', sales: 2800}, {day: 'Wed', sales: 3100}, {day: 'Thu', sales: 2900}, {day: 'Fri', sales: 3500}, {day: 'Sat', sales: 4700}, {day: 'Sun', sales: 3200}], hourlySales: [{hour: '8AM', sales: 150}, {hour: '10AM', sales: 400}, {hour: '12PM', sales: 800}, {hour: '2PM', sales: 600}, {hour: '4PM', sales: 1000}, {hour: '6PM', sales: 250}] },
+  { id: 'c3', name: 'Fadumo Abdi', branch: 'Downtown HQ', todaySales: 4100, weeklySales: 26500, transactions: 130, performance: 'excellent', salesTrend: [{day: 'Mon', sales: 3800}, {day: 'Tue', sales: 3900}, {day: 'Wed', sales: 4100}, {day: 'Thu', sales: 4000}, {day: 'Fri', sales: 4500}, {day: 'Sat', sales: 5500}, {day: 'Sun', sales: 4100}], hourlySales: [{hour: '8AM', sales: 300}, {hour: '10AM', sales: 600}, {hour: '12PM', sales: 1000}, {hour: '2PM', sales: 700}, {hour: '4PM', sales: 1100}, {hour: '6PM', sales: 400}] },
+  { id: 'c4', name: 'Ahmed Jama', branch: 'North Hills', todaySales: 1800, weeklySales: 11200, transactions: 65, performance: 'warning', salesTrend: [{day: 'Mon', sales: 1500}, {day: 'Tue', sales: 1600}, {day: 'Wed', sales: 1400}, {day: 'Thu', sales: 1800}, {day: 'Fri', sales: 2000}, {day: 'Sat', sales: 2900}, {day: 'Sun', sales: 1800}], hourlySales: [{hour: '8AM', sales: 100}, {hour: '10AM', sales: 250}, {hour: '12PM', sales: 400}, {hour: '2PM', sales: 300}, {hour: '4PM', sales: 600}, {hour: '6PM', sales: 150}] },
+];
+/*
+  { id: 'c1', name: 'Amina Ali', branch: 'Downtown HQ', todaySales: 4500, weeklySales: 28000, transactions: 142, performance: 'excellent' },
+  { id: 'c2', name: 'Omar Hassan', branch: 'Westside Plaza', todaySales: 3200, weeklySales: 19500, transactions: 98, performance: 'good' },
+  { id: 'c3', name: 'Fadumo Abdi', branch: 'Downtown HQ', todaySales: 4100, weeklySales: 26500, transactions: 130, performance: 'excellent' },
+  { id: 'c4', name: 'Ahmed Jama', branch: 'North Hills', todaySales: 1800, weeklySales: 11200, transactions: 65, performance: 'warning' },
+];*/
 
-export const revenueData = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() - (29 - i));
-  return {
-    name: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    revenue: Math.floor(Math.random() * 5000) + 10000,
-    profit: Math.floor(Math.random() * 2000) + 3000,
-  };
-});
+export const forecastData = [
+  { month: 'Jan', actual: 400000, forecast: 380000, previousYear: 320000 },
+  { month: 'Feb', actual: 420000, forecast: 410000, previousYear: 340000 },
+  { month: 'Mar', actual: 450000, forecast: 430000, previousYear: 350000 },
+  { month: 'Apr', actual: 480000, forecast: 460000, previousYear: 380000 },
+  { month: 'May', actual: 510000, forecast: 490000, previousYear: 400000 },
+  { month: 'Jun', actual: null, forecast: 530000, previousYear: 420000 },
+  { month: 'Jul', actual: null, forecast: 560000, previousYear: 450000 },
+];
 
-export const businessHealthData = [
-  { subject: 'Growth', A: 120, fullMark: 150 },
-  { subject: 'Revenue', A: 98, fullMark: 150 },
-  { subject: 'Profit', A: 86, fullMark: 150 },
-  { subject: 'Cash Flow', A: 99, fullMark: 150 },
-  { subject: 'Employees', A: 85, fullMark: 150 },
-  { subject: 'Inventory', A: 65, fullMark: 150 },
-  { subject: 'Branches', A: 85, fullMark: 150 },
-  { subject: 'Customers', A: 110, fullMark: 150 },
+export const mockDebts: Debt[] = [
+  { id: '1', customerName: 'Ahmed Jama', amount: 1500, dueDate: '2026-07-15', status: 'pending', branch: 'Downtown HQ', phone: '+252 61 2345678' },
+  { id: '2', customerName: 'Amina Omar', amount: 350, dueDate: '2026-07-10', status: 'overdue', branch: 'Westside Plaza', phone: '+252 61 8765432' },
+  { id: '3', customerName: 'Hussein Ali', amount: 4200, dueDate: '2026-07-20', status: 'pending', branch: 'Downtown HQ', phone: '+252 61 1122334' },
+];
+
+export const revenueData = [
+  { name: 'Mon', value: 12000, percentage: 12000 },
+  { name: 'Tue', value: 15000, percentage: 15000 },
+  { name: 'Wed', value: 18000, percentage: 18000 },
+  { name: 'Thu', value: 14000, percentage: 14000 },
+  { name: 'Fri', value: 22000, percentage: 22000 },
+  { name: 'Sat', value: 28000, percentage: 28000 },
+  { name: 'Sun', value: 25000, percentage: 25000 },
 ];
 
 export const topProductsData = [
-  { name: 'Product A', value: 245780, percentage: 33 },
-  { name: 'Product B', value: 185420, percentage: 25 },
-  { name: 'Product C', value: 142560, percentage: 19 },
-  { name: 'Product D', value: 98250, percentage: 13 },
-  { name: 'Others', value: 70530, percentage: 10 },
+  { name: 'MacBook Pro', value: 45, percentage: 45 },
+  { name: 'iPhone 15', value: 30, percentage: 30 },
+  { name: 'AirPods Pro', value: 15, percentage: 15 },
+  { name: 'iPad Pro', value: 10, percentage: 10 },
+];
+
+export const businessHealthData = [
+  { month: 'Jan', index: 82 },
+  { month: 'Feb', index: 85 },
+  { month: 'Mar', index: 84 },
+  { month: 'Apr', index: 88 },
+  { month: 'May', index: 90 },
+  { month: 'Jun', index: 92 },
 ];

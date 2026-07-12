@@ -1,130 +1,140 @@
-import { motion } from 'motion/react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine 
-} from 'recharts';
-import { Lock, Download, AlertTriangle } from 'lucide-react';
-import { cn } from '../lib/utils';
-
-const cashFlowData = [
-  { day: 'May 1', in: 40000, out: -30000 },
-  { day: 'May 8', in: 55000, out: -20000 },
-  { day: 'May 15', in: 30000, out: -45000 },
-  { day: 'May 22', in: 65000, out: -15000 },
-  { day: 'May 31', in: 80000, out: -25000 },
-];
+import { useState } from 'react';
+import { mockBranches } from '../data';
+import { FileText, Download, Calendar, Filter, Building2, ChevronDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import { Branch } from '../types';
 
 export function Reports() {
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
+
+  const generatePDFReport = (branch?: Branch) => {
+    const doc = new jsPDF();
+    const primaryColor = [29, 78, 216]; // Blue-700
+    
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("BizManager", 20, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(branch ? `${branch.name} Performance Report` : "Global Organization Report", 20, 32);
+    
+    doc.setFontSize(9);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, 25);
+    
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Executive Summary", 20, 55);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    if (branch) {
+      doc.text(`Revenue: $${branch.revenue.toLocaleString()}`, 20, 70);
+      doc.text(`Profit: $${branch.profit.toLocaleString()}`, 20, 80);
+      doc.text(`Employees: ${branch.employees}`, 20, 90);
+      doc.text(`Growth: ${branch.growth}%`, 20, 100);
+    } else {
+      const totalRev = mockBranches.reduce((a, b) => a + b.revenue, 0);
+      doc.text(`Total Organization Revenue: $${totalRev.toLocaleString()}`, 20, 70);
+      doc.text(`Active Branches: ${mockBranches.length}`, 20, 80);
+    }
+    
+    doc.save(`${branch ? branch.name.replace(/\s+/g, '_') : 'Global'}_Report.pdf`);
+  };
+
+  const displayBranches = selectedBranchId === 'all' 
+    ? mockBranches 
+    : mockBranches.filter(b => b.id === selectedBranchId);
+
   return (
-    <div className="space-y-6 pb-12 w-full max-w-5xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Reports & Cash Flow</h1>
-        <p className="text-sm text-text-muted">Financial intelligence and recent system activities.</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-text-main tracking-tight">Reports & Analytics</h2>
+          <p className="text-text-muted text-sm mt-1">Generate and export performance reports per branch</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button 
+            onClick={() => {
+              if (selectedBranchId === 'all') {
+                generatePDFReport();
+              } else {
+                generatePDFReport(displayBranches[0]);
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm shrink-0"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {selectedBranchId === 'all' ? 'Export Global Report' : 'Export Branch Report'}
+            </span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cash Flow Overview */}
-        <div className="bg-bg-card border border-white/5 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-medium text-white text-sm">Cash Flow Overview</h3>
-            <select className="bg-bg-surface border border-white/10 rounded-md text-xs px-2 py-1 text-text-muted outline-none cursor-pointer">
-              <option>This Month</option>
-            </select>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4 mb-6 border-b border-white/5 pb-4">
-            <div>
-              <div className="text-[9px] uppercase tracking-wider text-text-muted mb-1">Cash In</div>
-              <div className="text-xl font-bold text-success">$850k</div>
-            </div>
-            <div>
-              <div className="text-[9px] uppercase tracking-wider text-text-muted mb-1">Cash Out</div>
-              <div className="text-xl font-bold text-danger">$542k</div>
-            </div>
-            <div>
-              <div className="text-[9px] uppercase tracking-wider text-text-muted mb-1">Net Flow</div>
-              <div className="text-xl font-bold text-success">$308k</div>
-            </div>
-          </div>
-
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={cashFlowData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={24}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="day" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val/1000}k`} />
-                <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#111827', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: 12 }} 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
-                />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.2)" />
-                <Bar dataKey="in" fill="#10B981" radius={[4, 4, 0, 0]} name="Cash In" />
-                <Bar dataKey="out" fill="#EF4444" radius={[0, 0, 4, 4]} name="Cash Out" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
+          <Building2 className="w-4 h-4 text-gray-500" />
+          <select 
+            className="bg-transparent border-none text-sm font-medium text-gray-900 focus:ring-0 cursor-pointer outline-none"
+            value={selectedBranchId}
+            onChange={(e) => setSelectedBranchId(e.target.value)}
+          >
+            <option value="all">All Branches</option>
+            {mockBranches.map(b => (
+              <option key={b.id} value={b.id}>{b.name}</option>
+            ))}
+          </select>
         </div>
-
-        {/* Recent Activity */}
-        <div className="bg-bg-card border border-white/5 rounded-2xl p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-medium text-white text-sm">Recent Activity</h3>
-            <button className="text-xs text-primary hover:text-white transition-colors">View All</button>
-          </div>
-          
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border border-primary/30 bg-bg-base flex items-center justify-center shrink-0">
-                <Lock className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between mb-1">
-                  <div className="text-sm font-medium text-white">New login detected</div>
-                  <div className="text-[10px] text-text-muted whitespace-nowrap ml-2">2m ago</div>
-                </div>
-                <div className="text-xs text-text-muted">Dubai, UAE • Chrome • Mac OS</div>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border border-success/30 bg-bg-base flex items-center justify-center shrink-0">
-                <Download className="w-4 h-4 text-success" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between mb-1">
-                  <div className="text-sm font-medium text-white">Report generated</div>
-                  <div className="text-[10px] text-text-muted whitespace-nowrap ml-2">15m ago</div>
-                </div>
-                <div className="text-xs text-text-muted">Monthly Executive Report - Full Summary</div>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border border-warning/30 bg-bg-base flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-4 h-4 text-warning" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between mb-1">
-                  <div className="text-sm font-medium text-white">Stock alert triggered</div>
-                  <div className="text-[10px] text-text-muted whitespace-nowrap ml-2">30m ago</div>
-                </div>
-                <div className="text-xs text-text-muted">Rice 25kg is low in stock at Mogadishu Branch</div>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full border border-primary/30 bg-bg-base flex items-center justify-center shrink-0">
-                <Lock className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between mb-1">
-                  <div className="text-sm font-medium text-white">Security configuration changed</div>
-                  <div className="text-[10px] text-text-muted whitespace-nowrap ml-2">2h ago</div>
-                </div>
-                <div className="text-xs text-text-muted">Updated password policy for all staff users</div>
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500 font-medium">
+          <Calendar className="w-4 h-4" /> This Month
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {displayBranches.map(branch => (
+          <div key={branch.id} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="font-bold text-lg text-gray-900">{branch.name}</h3>
+                  <div className="text-sm text-gray-500">{branch.code}</div>
+                </div>
+                <button 
+                  onClick={() => generatePDFReport(branch)}
+                  className="p-2 hover:bg-blue-50 rounded-lg text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
+                >
+                  <FileText className="w-4 h-4" /> PDF
+                </button>
+              </div>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Gross Revenue</span>
+                  <span className="font-bold text-gray-900">${branch.revenue.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Net Profit</span>
+                  <span className="font-bold text-gray-900">${branch.profit.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Growth Rate</span>
+                  <span className={`font-bold ${branch.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {branch.growth >= 0 ? '+' : ''}{branch.growth}%
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
+              <span>Managed by: <span className="font-medium text-gray-900">{branch.manager}</span></span>
+              <span>{branch.employees} Staff</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
