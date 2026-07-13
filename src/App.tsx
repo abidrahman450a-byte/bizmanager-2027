@@ -50,8 +50,8 @@ export default function App() {
       <div className="flex-1 flex flex-col relative overflow-hidden">
         {/* Simple Header */}
         <header className="h-20 px-8 flex items-center justify-between shrink-0">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-             {currentView === 'dashboard' ? 'Dashboard Overview' : currentView.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight"> 
+            {currentView === 'dashboard' ? 'Dashboard Overview' : currentView.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
           </h1>
           <div className="flex items-center gap-4">
             <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors">

@@ -22,6 +22,8 @@ export interface Branch {
   id: string;
   name: string;
   code: string;
+  image?: string;
+  color?: string;
   revenue: number;
   profit: number;
   growth: number;

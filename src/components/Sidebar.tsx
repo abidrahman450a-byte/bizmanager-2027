@@ -1,18 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Home, 
-  Building2, 
-  Box, 
-  Users, 
-  DollarSign, 
-  FileText, 
-  CreditCard, 
-  Smartphone, 
-  Settings, 
-  LogOut,
-  ChevronDown,
-  LayoutGrid
+  Home, Building2, Box, Users, DollarSign, 
+  FileText, CreditCard, Smartphone, Settings, LogOut,
+  ChevronDown, LayoutGrid
 } from 'lucide-react';
 import type { ElementType } from 'react';
 import { ViewState } from '../types';
@@ -32,8 +23,6 @@ const navItems: { id: ViewState; label: string; icon: ElementType; hasSubmenu?: 
   { id: 'employees', label: 'Employees', icon: Users, hasSubmenu: true },
   { id: 'finance', label: 'Finance', icon: DollarSign, hasSubmenu: true },
   { id: 'reports', label: 'Reports', icon: FileText, hasSubmenu: true },
-  { id: 'expenses', label: 'Expenses', icon: CreditCard, hasSubmenu: true },
-  { id: 'mobile_money', label: 'Mobile Money', icon: Smartphone, hasSubmenu: true },
   { id: 'settings', label: 'Settings', icon: Settings, hasSubmenu: true },
 ];
 
