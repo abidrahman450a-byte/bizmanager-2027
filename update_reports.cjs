@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const content = `import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Download, Calendar, Filter, PieChart as PieChartIcon, BarChart3, TrendingUp, ChevronDown, Check, Activity, Search } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
@@ -150,7 +152,7 @@ export function Reports() {
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
                     {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={['#6366f1', '#10b981', '#f59e0b', '#ec4899'][index % 4]} />
+                      <Cell key={\`cell-\${index}\`} fill={['#6366f1', '#10b981', '#f59e0b', '#ec4899'][index % 4]} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -195,9 +197,9 @@ export function Reports() {
                   transition={{ delay: 0.1 * i }}
                   className="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all group cursor-pointer flex items-center gap-4"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs ${
+                  <div className={\`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs \${
                     report.type === 'PDF' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
-                  }`}>
+                  }\`}>
                     {report.type}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -220,3 +222,5 @@ export function Reports() {
     </div>
   );
 }
+`
+fs.writeFileSync('src/views/Reports.tsx', content);

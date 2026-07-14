@@ -1,298 +1,349 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { mockCashiers } from '../data';
-import { Search, Filter, ShieldCheck, DollarSign, Receipt, ChevronRight, ArrowLeft, TrendingUp, Clock, Activity, CalendarDays } from 'lucide-react';
+import { Search, Plus, Filter, User, Mail, Phone, X, Activity, CheckCircle2, Clock, DollarSign, Calendar, Timer, Briefcase, TrendingUp, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
+const generateHourlyData = () => {
+  return [
+    { time: '9AM', performance: 40 + Math.random() * 20, sales: Math.floor(Math.random() * 200) },
+    { time: '11AM', performance: 60 + Math.random() * 30, sales: Math.floor(Math.random() * 400) },
+    { time: '1PM', performance: 50 + Math.random() * 40, sales: Math.floor(Math.random() * 350) },
+    { time: '3PM', performance: 70 + Math.random() * 20, sales: Math.floor(Math.random() * 500) },
+    { time: '5PM', performance: 30 + Math.random() * 30, sales: Math.floor(Math.random() * 150) },
+  ];
+};
+
+const generateWeeklyData = () => {
+  return [
+    { name: 'Mon', sales: 4000 + Math.random() * 1000 },
+    { name: 'Tue', sales: 4200 + Math.random() * 1000 },
+    { name: 'Wed', sales: 3800 + Math.random() * 1000 },
+    { name: 'Thu', sales: 4800 + Math.random() * 1000 },
+    { name: 'Fri', sales: 5000 + Math.random() * 1000 },
+    { name: 'Sat', sales: 6100 + Math.random() * 1000 },
+    { name: 'Sun', sales: 4500 + Math.random() * 1000 },
+  ];
+};
+
+const MOCK_EMPLOYEES = [
+  { id: 1, name: 'Amina Ali', role: 'Sales Rep', department: 'Downtown HQ', status: 'Active', email: 'amina@biz.com', phone: '+1 555-0101', performance: 92, sales: 12500, hours: 164, days: 22, attendanceRate: 98, absentDays: 0, avatar: '', clockIn: '08:15 AM', clockOut: '05:30 PM', todayTasks: 14, todaySales: 4500, transactions: 142, weeklyAvgSales: 28000, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: 2, name: 'Bob Smith', role: 'Developer', department: 'Engineering', status: 'Active', email: 'bob@biz.com', phone: '+1 555-0102', performance: 88, sales: 0, hours: 158, days: 21, attendanceRate: 90, absentDays: 2, avatar: '', clockIn: '09:00 AM', clockOut: '06:00 PM', todayTasks: 8, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: 3, name: 'Charlie Davis', role: 'Designer', department: 'Design', status: 'On Leave', email: 'charlie@biz.com', phone: '+1 555-0103', performance: 95, sales: 0, hours: 120, days: 15, attendanceRate: 85, absentDays: 5, avatar: '', clockIn: '-', clockOut: '-', todayTasks: 0, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: 4, name: 'Diana Prince', role: 'HR Manager', department: 'Human Resources', status: 'Active', email: 'diana@biz.com', phone: '+1 555-0104', performance: 81, sales: 0, hours: 170, days: 23, attendanceRate: 100, absentDays: 0, avatar: '', clockIn: '08:30 AM', clockOut: '05:00 PM', todayTasks: 5, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: 5, name: 'Evan Wright', role: 'Accountant', department: 'Finance', status: 'Active', email: 'evan@biz.com', phone: '+1 555-0105', performance: 89, sales: 0, hours: 160, days: 22, attendanceRate: 95, absentDays: 1, avatar: '', clockIn: '08:00 AM', clockOut: '04:30 PM', todayTasks: 9, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: 6, name: 'Fiona Gallagher', role: 'Sales Rep', department: 'Uptown Branch', status: 'In Meeting', email: 'fiona@biz.com', phone: '+1 555-0106', performance: 94, sales: 8900, hours: 145, days: 19, attendanceRate: 92, absentDays: 1, avatar: '', clockIn: '08:45 AM', clockOut: 'In Progress', todayTasks: 11, todaySales: 3200, transactions: 95, weeklyAvgSales: 19500, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+];
+
 export function Employees() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEmployee, setSelectedEmployee] = useState<typeof MOCK_EMPLOYEES[0] | null>(null);
 
-  const filteredCashiers = mockCashiers.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    c.branch.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setEmployees(current => {
+        const newEmployees = [...current];
+        const randomIdx = Math.floor(Math.random() * newEmployees.length);
+        const statuses = ['Active', 'On Leave', 'In Meeting', 'Remote'];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        if(newEmployees[randomIdx].status !== 'On Leave') {
+           newEmployees[randomIdx] = { 
+             ...newEmployees[randomIdx], 
+             status: randomStatus,
+             performance: Math.max(60, Math.min(100, newEmployees[randomIdx].performance + (Math.floor(Math.random() * 5) - 2))),
+             todayTasks: newEmployees[randomIdx].todayTasks + Math.floor(Math.random() * 2),
+             todaySales: newEmployees[randomIdx].department.includes('HQ') || newEmployees[randomIdx].department.includes('Branch') ? newEmployees[randomIdx].todaySales + Math.floor(Math.random() * 50) : 0
+           };
+        }
+        return newEmployees;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const maxWeeklySales = Math.max(...mockCashiers.map(c => c.weeklySales), 1);
-  const selectedEmployee = mockCashiers.find(c => c.id === selectedEmployeeId);
+  const filtered = employees.filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || emp.role.toLowerCase().includes(searchTerm.toLowerCase()));
+  const currentSelected = selectedEmployee ? employees.find(e => e.id === selectedEmployee.id) : null;
 
-  return (
-    <div className="space-y-6">
-      <AnimatePresence mode="wait">
-        {!selectedEmployeeId ? (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
+  if (currentSelected) {
+    return (
+      <div className="flex flex-col gap-6 min-h-full text-slate-800">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900">Employees</h2>
+          <div className="flex items-center gap-4">
+            <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700">
+              <Activity className="w-5 h-5" />
+            </button>
+            <button className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-700">
+              <span className="relative">
+                <Mail className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 mb-2">
+          <button 
+            onClick={() => setSelectedEmployee(null)}
+            className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors"
           >
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-text-main tracking-tight">Staff & Cashier Performance</h2>
-                <p className="text-text-muted text-sm mt-1">Monitor individual sales metrics and transaction volumes</p>
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-[22px] font-bold text-slate-900 leading-tight">Employee Profile</h1>
+            <p className="text-sm text-slate-500 font-medium">Detailed performance metrics and history</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: Profile Card */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm flex flex-col items-center text-center">
+              <div className="w-28 h-28 rounded-full bg-[#eff6ff] flex items-center justify-center text-[#2563eb] font-bold text-4xl shadow-sm border-[6px] border-white ring-1 ring-slate-100 mb-5">
+                {currentSelected.name.charAt(0)}
               </div>
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-                  <input 
-                    type="text"
-                    placeholder="Search staff..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-text-main shadow-sm"
-                  />
+              <h2 className="text-2xl font-bold text-slate-900">{currentSelected.name}</h2>
+              <p className="text-[15px] text-slate-500 font-medium mt-1">{currentSelected.department}</p>
+              
+              <div className="mt-4 mb-8">
+                <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[13px] font-bold rounded-full border border-emerald-100">
+                  Performance: {currentSelected.performance >= 90 ? 'Excellent' : currentSelected.performance >= 75 ? 'Good' : 'Average'}
+                </span>
+              </div>
+
+              <div className="w-full h-px bg-slate-100 mb-8"></div>
+
+              <div className="w-full grid grid-cols-2 gap-4 text-left mb-8">
+                <div>
+                  <div className="text-[13px] font-medium text-slate-500 mb-1">Today's Sales</div>
+                  <div className="text-2xl font-bold text-slate-900">${currentSelected.todaySales.toLocaleString()}</div>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-text-main rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm shrink-0">
-                  <Filter className="w-4 h-4" />
-                  <span className="hidden sm:inline">Filter</span>
-                </button>
+                <div>
+                  <div className="text-[13px] font-medium text-slate-500 mb-1">Transactions</div>
+                  <div className="text-2xl font-bold text-slate-900">{currentSelected.transactions}</div>
+                </div>
+              </div>
+
+              <div className="w-full text-left mb-6">
+                <div className="text-[13px] font-medium text-slate-500 mb-1">Weekly Average Sales</div>
+                <div className="text-2xl font-bold text-slate-900">${currentSelected.weeklyAvgSales.toLocaleString()}</div>
+              </div>
+
+              <div className="w-full grid grid-cols-2 gap-4 text-left">
+                <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
+                  <div className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1">Attendance</div>
+                  <div className="text-xl font-black text-emerald-700">{currentSelected.attendanceRate}%</div>
+                </div>
+                <div className={`${currentSelected.absentDays > 0 ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-100'} p-3 rounded-2xl border`}>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${currentSelected.absentDays > 0 ? 'text-rose-600' : 'text-slate-500'}`}>Absent</div>
+                  <div className={`text-xl font-black ${currentSelected.absentDays > 0 ? 'text-rose-700' : 'text-slate-700'}`}>{currentSelected.absentDays} {currentSelected.absentDays === 1 ? 'Day' : 'Days'}</div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {mockCashiers.map(cashier => (
-                <div 
-                  key={cashier.id} 
-                  onClick={() => setSelectedEmployeeId(cashier.id)}
-                  className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between cursor-pointer hover:border-primary/50 transition-colors hover:shadow-md"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold border border-blue-200">
-                        {cashier.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-bold text-gray-900 leading-tight">{cashier.name}</div>
-                        <div className="text-xs text-gray-500">{cashier.branch}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-2 flex justify-between items-end">
-                    <div>
-                      <div className="text-xs text-gray-500 font-medium mb-1">Weekly Sales</div>
-                      <div className="text-2xl font-bold text-gray-900">${cashier.weeklySales.toLocaleString()}</div>
-                    </div>
-                    <div className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-                      {Math.round((cashier.weeklySales / maxWeeklySales) * 100)}%
-                    </div>
-                  </div>
-                  
-                  <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full ${
-                        cashier.performance === 'excellent' ? 'bg-green-500' :
-                        cashier.performance === 'good' ? 'bg-blue-500' : 'bg-orange-500'
-                      }`}
-                      style={{ width: `${(cashier.weeklySales / maxWeeklySales) * 100}%` }}
+          {/* Right Column: Charts */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            
+            {/* Weekly Sales Trend */}
+            <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-[17px] font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-[#2563eb]" /> Weekly Sales Trend
+                </h3>
+                <span className="px-3 py-1 bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg border border-slate-100">
+                  Last 7 Days
+                </span>
+              </div>
+              <div className="h-[240px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={currentSelected.weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dx={-10} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                      cursor={{ stroke: '#e2e8f0', strokeWidth: 1, strokeDasharray: '4 4' }}
                     />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-50/80 border-b border-gray-200 text-sm font-medium text-gray-500">
-                      <th className="py-4 px-6 font-semibold">Staff Member</th>
-                      <th className="py-4 px-6 font-semibold">Branch</th>
-                      <th className="py-4 px-6 font-semibold">Today's Sales</th>
-                      <th className="py-4 px-6 font-semibold">Weekly Sales</th>
-                      <th className="py-4 px-6 font-semibold">Transactions</th>
-                      <th className="py-4 px-6 font-semibold">Status</th>
-                      <th className="py-4 px-6 font-semibold text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredCashiers.map((cashier) => (
-                      <tr 
-                        key={cashier.id} 
-                        onClick={() => setSelectedEmployeeId(cashier.id)}
-                        className="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                      >
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold border border-blue-200">
-                              {cashier.name.charAt(0)}
-                            </div>
-                            <div>
-                              <div className="font-bold text-gray-900">{cashier.name}</div>
-                              <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                <ShieldCheck className="w-3 h-3 text-green-500" /> Cashier
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6 text-sm text-gray-600 font-medium">
-                          {cashier.branch}
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 font-bold text-gray-900">
-                            <DollarSign className="w-4 h-4 text-gray-400" />
-                            {cashier.todaySales.toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="text-sm font-semibold text-gray-700">
-                            ${cashier.weeklySales.toLocaleString()}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
-                            <Receipt className="w-4 h-4 text-gray-400" />
-                            {cashier.transactions}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            cashier.performance === 'excellent' ? 'bg-green-100 text-green-700' :
-                            cashier.performance === 'good' ? 'bg-blue-100 text-blue-700' :
-                            'bg-orange-100 text-orange-700'
-                          }`}>
-                            {cashier.performance === 'excellent' ? 'Excellent' : 
-                             cashier.performance === 'good' ? 'Good' : 'Needs Review'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <button className="p-2 hover:bg-gray-200 rounded-lg text-gray-400 hover:text-gray-900 transition-colors">
-                            <ChevronRight className="w-5 h-5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-        ) : selectedEmployee ? (
-          <motion.div
-            key="profile"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSelectedEmployeeId(null)}
-                className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors shadow-sm text-gray-600"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <h2 className="text-2xl font-bold text-text-main tracking-tight">Employee Profile</h2>
-                <p className="text-text-muted text-sm mt-1">Detailed performance metrics and history</p>
+                    <Area 
+                      type="monotone" 
+                      dataKey="sales" 
+                      stroke="#2563eb" 
+                      strokeWidth={3} 
+                      fillOpacity={1} 
+                      fill="url(#colorSales)" 
+                      activeDot={{ r: 6, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Profile Sidebar */}
-              <div className="lg:col-span-1 space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
-                  <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-3xl font-bold border-4 border-white shadow-lg mx-auto mb-4">
-                    {selectedEmployee.name.charAt(0)}
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">{selectedEmployee.name}</h3>
-                  <div className="text-sm font-medium text-gray-500 mb-4">{selectedEmployee.branch}</div>
-                  
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold mb-6 ${
-                    selectedEmployee.performance === 'excellent' ? 'bg-green-100 text-green-700' :
-                    selectedEmployee.performance === 'good' ? 'bg-blue-100 text-blue-700' :
-                    'bg-orange-100 text-orange-700'
-                  }`}>
-                    Performance: {selectedEmployee.performance.charAt(0).toUpperCase() + selectedEmployee.performance.slice(1)}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-left border-t border-gray-100 pt-6">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Today's Sales</div>
-                      <div className="font-bold text-gray-900 text-lg">${selectedEmployee.todaySales.toLocaleString()}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Transactions</div>
-                      <div className="font-bold text-gray-900 text-lg">{selectedEmployee.transactions}</div>
-                    </div>
-                    <div className="col-span-2">
-                      <div className="text-xs text-gray-500 mb-1">Weekly Average Sales</div>
-                      <div className="font-bold text-gray-900 text-lg">${selectedEmployee.weeklySales.toLocaleString()}</div>
-                    </div>
-                  </div>
-                </div>
+            {/* Hourly Performance */}
+            <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="text-[17px] font-bold text-slate-900 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-[#2563eb]" /> Hourly Performance
+                </h3>
+                <span className="px-3 py-1 bg-slate-50 text-slate-600 text-xs font-semibold rounded-lg border border-slate-100">
+                  Today
+                </span>
               </div>
-
-              {/* Charts Area */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                      <CalendarDays className="w-5 h-5 text-primary" />
-                      Weekly Sales Trend
-                    </h3>
-                    <div className="px-3 py-1 bg-gray-50 rounded-lg border border-gray-100 text-xs font-semibold text-gray-600">
-                      Last 7 Days
-                    </div>
-                  </div>
-                  <div className="h-[280px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={selectedEmployee.salesTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.2}/>
-                            <stop offset="95%" stopColor="#1D4ED8" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                        <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                        <Tooltip 
-                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                          formatter={(value) => [`$${value}`, 'Sales']}
-                        />
-                        <Area type="monotone" dataKey="sales" stroke="#1D4ED8" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-indigo-500" />
-                      Hourly Performance
-                    </h3>
-                    <div className="px-3 py-1 bg-gray-50 rounded-lg border border-gray-100 text-xs font-semibold text-gray-600">
-                      Today
-                    </div>
-                  </div>
-                  <div className="h-[220px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={selectedEmployee.hourlySales} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                        <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                        <Tooltip 
-                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                          cursor={{ fill: '#F3F4F6' }}
-                          formatter={(value) => [`$${value}`, 'Sales']}
-                        />
-                        <Bar dataKey="sales" radius={[4, 4, 0, 0]}>
-                          {selectedEmployee.hourlySales?.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#4F46E5' : '#818CF8'} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={currentSelected.hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dx={-10} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                      cursor={{ fill: '#f8fafc' }}
+                    />
+                    <Bar dataKey="sales" fill="#10b981" radius={[4, 4, 0, 0]} barSize={32} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Original list view
+  return (
+    <div className="flex flex-col gap-6 min-h-full text-slate-800 relative">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold font-display text-slate-800">Team Members</h2>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="bg-[#2563eb] hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Add Employee
+        </motion.button>
+      </div>
+
+      <div className="flex flex-1 gap-6 overflow-hidden pb-4">
+        {/* Main List */}
+        <motion.div layout className="bg-white rounded-3xl border border-slate-100 flex-1 flex flex-col overflow-hidden p-6 relative z-10 shadow-sm">
+          <div className="flex justify-between items-center mb-6 gap-4">
+            <div className="flex-1 max-w-md relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                placeholder="Search employees..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all placeholder:text-slate-400"
+              />
+            </div>
+            <button className="bg-slate-50 border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 hover:bg-slate-100 transition-colors">
+              <Filter className="w-4 h-4" /> Filter
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-auto rounded-xl border border-slate-100 bg-white">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider sticky top-0 z-10 border-b border-slate-100">
+                  <th className="px-6 py-4 rounded-tl-xl">Employee</th>
+                  <th className="px-6 py-4">Role</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Attendance</th>
+                  <th className="px-6 py-4 text-right">Performance</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                <AnimatePresence>
+                  {filtered.map((emp) => (
+                    <motion.tr 
+                      key={emp.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      whileHover={{ backgroundColor: 'rgba(248, 250, 252, 0.8)' }}
+                      onClick={() => setSelectedEmployee(emp)}
+                      className={`cursor-pointer transition-colors ${currentSelected?.id === emp.id ? 'bg-blue-50' : ''}`}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-[#eff6ff] flex items-center justify-center text-[#2563eb] font-bold text-lg shadow-sm border border-slate-200">
+                            {emp.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-sm text-slate-800">{emp.name}</div>
+                            <div className="text-xs text-slate-500">{emp.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-sm text-slate-700">{emp.role}</div>
+                        <div className="text-xs text-slate-500">{emp.department}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <motion.span 
+                          key={emp.status}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className={`px-2.5 py-1 text-[11px] font-bold rounded-lg inline-flex items-center gap-1.5 ${
+                            emp.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                            emp.status === 'On Leave' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                            emp.status === 'In Meeting' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                            'bg-purple-50 text-purple-600 border border-purple-100'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${ 
+                             emp.status === 'Active' ? 'bg-emerald-500' : 
+                             emp.status === 'On Leave' ? 'bg-amber-500' : 
+                             emp.status === 'In Meeting' ? 'bg-[#2563eb]' : 
+                             'bg-purple-500'
+                          }`}></span>
+                          {emp.status}
+                        </motion.span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-sm text-slate-700">{emp.attendanceRate}%</div>
+                        {emp.absentDays > 0 ? (
+                          <div className="text-xs font-medium text-rose-500">{emp.absentDays} {emp.absentDays === 1 ? 'day' : 'days'} absent</div>
+                        ) : (
+                          <div className="text-xs font-medium text-emerald-500">Perfect</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${emp.performance}%` }}
+                              className={`h-full rounded-full ${emp.performance > 85 ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                            />
+                          </div>
+                          <span className="text-xs font-bold text-slate-700 w-8">{emp.performance}%</span>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+            {filtered.length === 0 && (
+               <div className="flex flex-col items-center justify-center p-12 text-slate-500">
+                  <User className="w-12 h-12 mb-4 text-slate-300" />
+                  <p>No employees found matching "{searchTerm}"</p>
+               </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

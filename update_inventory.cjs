@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const content = `import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Package, Search, Filter, Plus, Box, AlertCircle, ArrowUpRight, ArrowDownRight, Edit3, Trash2, ArrowLeft, Archive, TrendingUp, Calendar, AlertTriangle, Clock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
@@ -182,16 +184,16 @@ export function Inventory() {
               <div className="px-2">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-2xl font-black text-slate-900">${selectedItem.price.toFixed(2)}</span>
-                  <span className={`px-3 py-1 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 ${
+                  <span className={\`px-3 py-1 text-xs font-bold rounded-lg inline-flex items-center gap-1.5 \${
                     selectedItem.status === 'In Stock' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                     selectedItem.status === 'Low Stock' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                     'bg-rose-50 text-rose-600 border border-rose-100'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${ 
+                  }\`}>
+                    <span className={\`w-1.5 h-1.5 rounded-full \${ 
                         selectedItem.status === 'In Stock' ? 'bg-emerald-500' : 
                         selectedItem.status === 'Low Stock' ? 'bg-amber-500' : 
                         'bg-rose-500'
-                    }`}></span>
+                    }\`}></span>
                     {selectedItem.status}
                   </span>
                 </div>
@@ -247,7 +249,7 @@ export function Inventory() {
                 title="Expiring" 
                 value={selectedItem.expiringSoon} 
                 subtitle="Inta dhaceysa" 
-                icon={<AlertTriangle className={`w-5 h-5 ${selectedItem.expiringSoon > 0 ? 'text-rose-600' : 'text-slate-400'}`} />} 
+                icon={<AlertTriangle className={\`w-5 h-5 \${selectedItem.expiringSoon > 0 ? 'text-rose-600' : 'text-slate-400'}\`} />} 
                 bg={selectedItem.expiringSoon > 0 ? "bg-rose-50" : "bg-slate-100"} 
                 delay={0.5}
                 highlight={selectedItem.expiringSoon > 0}
@@ -369,7 +371,7 @@ export function Inventory() {
               <button 
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'}`}
+                className={\`px-4 py-2 rounded-xl text-sm font-bold transition-all \${selectedCategory === cat ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'}\`}
               >
                 {cat}
               </button>
@@ -412,16 +414,16 @@ export function Inventory() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 right-3">
-                    <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg inline-flex items-center gap-1.5 shadow-sm ${
+                    <span className={\`px-2.5 py-1 text-[11px] font-bold rounded-lg inline-flex items-center gap-1.5 shadow-sm \${
                       item.status === 'In Stock' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                       item.status === 'Low Stock' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                       'bg-rose-50 text-rose-600 border border-rose-100'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${ 
+                    }\`}>
+                      <span className={\`w-1.5 h-1.5 rounded-full \${ 
                          item.status === 'In Stock' ? 'bg-emerald-500' : 
                          item.status === 'Low Stock' ? 'bg-amber-500' : 
                          'bg-rose-500'
-                      }`}></span>
+                      }\`}></span>
                       {item.status}
                     </span>
                   </div>
@@ -435,11 +437,11 @@ export function Inventory() {
                   <div className="mt-auto flex justify-between items-end pt-4 border-t border-slate-100">
                     <div>
                       <div className="text-[11px] font-medium text-slate-500 mb-0.5">Stock Available</div>
-                      <div className={`font-black text-lg ${item.stock > 10 ? 'text-slate-900' : 'text-rose-600'}`}>{item.stock}</div>
+                      <div className={\`font-black text-lg \${item.stock > 10 ? 'text-slate-900' : 'text-rose-600'}\`}>{item.stock}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-[11px] font-medium text-slate-500 mb-0.5">Price</div>
-                      <div className="font-black text-lg text-slate-900">${item.price.toFixed(2)}</div>
+                      <div className="font-black text-lg text-slate-900">\${item.price.toFixed(2)}</div>
                     </div>
                   </div>
                 </div>
@@ -465,16 +467,18 @@ function DetailStatCard({ title, value, subtitle, icon, bg, delay, highlight = f
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay }}
-      className={`${highlight ? 'bg-rose-50 border-rose-100' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1 transition-transform duration-300`}
+      className={\`\${highlight ? 'bg-rose-50 border-rose-100' : 'bg-white border-slate-100'} p-5 rounded-2xl border shadow-sm flex flex-col items-start gap-3 hover:-translate-y-1 transition-transform duration-300\`}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bg}`}>
+      <div className={\`w-10 h-10 rounded-xl flex items-center justify-center \${bg}\`}>
         {icon}
       </div>
       <div>
-        <h3 className={`text-xs font-bold uppercase tracking-wider mb-1 ${highlight ? 'text-rose-600/70' : 'text-slate-500'}`}>{title}</h3>
-        <p className={`text-2xl font-black tracking-tight leading-none mb-1 ${highlight ? 'text-rose-700' : 'text-slate-900'}`}>{value}</p>
-        <p className={`text-[11px] font-medium ${highlight ? 'text-rose-600/70' : 'text-slate-400'}`}>{subtitle}</p>
+        <h3 className={\`text-xs font-bold uppercase tracking-wider mb-1 \${highlight ? 'text-rose-600/70' : 'text-slate-500'}\`}>{title}</h3>
+        <p className={\`text-2xl font-black tracking-tight leading-none mb-1 \${highlight ? 'text-rose-700' : 'text-slate-900'}\`}>{value}</p>
+        <p className={\`text-[11px] font-medium \${highlight ? 'text-rose-600/70' : 'text-slate-400'}\`}>{subtitle}</p>
       </div>
     </motion.div>
   );
 }
+`
+fs.writeFileSync('src/views/Inventory.tsx', content);

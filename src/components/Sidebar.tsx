@@ -1,128 +1,158 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React from 'react';
 import { 
-  Home, Building2, Box, Users, DollarSign, 
-  FileText, CreditCard, Smartphone, Settings, LogOut,
-  ChevronDown, LayoutGrid
+  Menu, Home, LayoutGrid, Box, Users, 
+  Mail, MessageSquare, Settings, CheckCircle2,
+  Briefcase
 } from 'lucide-react';
 import type { ElementType } from 'react';
 import { ViewState } from '../types';
 import { cn } from '../lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface SidebarProps {
   currentView: ViewState;
   onViewChange: (view: ViewState) => void;
   onLogout: () => void;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
-const navItems: { id: ViewState; label: string; icon: ElementType; hasSubmenu?: boolean }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, hasSubmenu: true },
-  { id: 'branches', label: 'Branches', icon: Building2, hasSubmenu: true },
-  { id: 'inventory', label: 'Inventory', icon: Box, hasSubmenu: true },
-  { id: 'customers', label: 'Customers', icon: Users, hasSubmenu: true },
-  { id: 'employees', label: 'Employees', icon: Users, hasSubmenu: true },
-  { id: 'finance', label: 'Finance', icon: DollarSign, hasSubmenu: true },
-  { id: 'reports', label: 'Reports', icon: FileText, hasSubmenu: true },
-  { id: 'settings', label: 'Settings', icon: Settings, hasSubmenu: true },
+const navItems: { id: ViewState; icon: ElementType; label: string }[] = [
+  { id: 'dashboard', icon: Home, label: 'Dashboard' },
+  { id: 'branches', icon: LayoutGrid, label: 'Branches' },
+  { id: 'inventory', icon: Box, label: 'Inventory' },
+  { id: 'employees', icon: Briefcase, label: 'Employees' },
+  { id: 'customers', icon: Users, label: 'Customers' },
+  { id: 'finance', icon: Mail, label: 'Finance' },
+  { id: 'reports', icon: MessageSquare, label: 'Reports' },
 ];
 
-export function Sidebar({ currentView, onViewChange, onLogout }: SidebarProps) {
-  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
-    dashboard: true
-  });
-
-  const toggleSubmenu = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setOpenMenus(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
+export function Sidebar({ currentView, onViewChange, onLogout, isExpanded, onToggle }: SidebarProps) {
   return (
-    <div className="w-64 bg-bg-surface border-r border-white/5 h-screen flex flex-col hidden md:flex shrink-0 shadow-xl z-20">
-      {/* Header / Logo */}
-      <div className="pt-8 pb-6 px-6 flex items-center gap-3">
-        <div className="flex items-center justify-center shrink-0">
-          <LayoutGrid className="w-7 h-7 text-white" />
-        </div>
-        <div>
-          <div className="text-[22px] font-bold tracking-tight text-white leading-none">BIZMANAGER</div>
-          <div className="text-[10px] text-text-sidebar-muted mt-1 uppercase tracking-wider font-semibold">Owner Monitor</div>
-        </div>
+    <motion.div 
+      animate={{ width: isExpanded ? 240 : 96 }}
+      className="border-r border-slate-300/30 flex flex-col py-8 shrink-0 z-20 bg-white/20 backdrop-blur-sm h-full overflow-y-auto overflow-x-hidden scrollbar-hide"
+    >
+      <div className="flex items-center mb-8 px-8">
+        <button 
+          onClick={onToggle}
+          className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors shrink-0 -ml-2"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.span 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="ml-2 font-bold text-slate-800 text-xl tracking-tight"
+            >
+              Menu
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* User Profile */}
-      <div className="px-6 pb-6">
-        <div className="flex items-center gap-3">
-          <img src="https://ui-avatars.com/api/?name=Owner&background=1D4ED8&color=fff&size=40" alt="Avatar" className="w-10 h-10 rounded-full border border-white/20" />
-          <div className="flex-1">
-            <div className="text-sm font-semibold text-text-sidebar">Owner</div>
-            <div className="text-xs text-text-sidebar-muted">Monitor</div>
-          </div>
-          <button className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-text-sidebar-muted hover:text-white transition-colors">
-            <UserIcon className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto scrollbar-hide">
+      <nav className="flex-1 flex flex-col gap-2 w-full px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
           
           return (
-            <div key={item.id}>
-              <button
-                onClick={() => onViewChange(item.id)}
-                className={cn(
-                  "w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors relative group",
-                  isActive 
-                    ? "bg-primary text-white" 
-                    : "text-text-sidebar-muted hover:text-text-sidebar hover:bg-white/5"
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={cn(
+                "relative flex items-center transition-all duration-300 group shrink-0",
+                isExpanded ? "rounded-xl px-4 py-3 h-14" : "rounded-2xl aspect-square justify-center h-16 w-16 mx-auto",
+                isActive 
+                  ? "bg-[#E6F0EA]/80 text-emerald-600 shadow-sm border border-emerald-100/50" 
+                  : "text-slate-400 hover:bg-white/50 hover:text-slate-600"
+              )}
+            >
+              {isActive && !isExpanded && (
+                <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-emerald-500 rounded-r-full shadow-sm" />
+              )}
+              {isActive && isExpanded && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-emerald-500 rounded-r-full shadow-sm" />
+              )}
+              
+              <Icon className="w-6 h-6 shrink-0" strokeWidth={isActive ? 2 : 1.5} />
+              
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: 'auto' }}
+                    exit={{ opacity: 0, width: 0 }}
+                    className="ml-4 font-medium whitespace-nowrap"
+                  >
+                    {item.label}
+                  </motion.span>
                 )}
-              >
-                <div className="flex items-center gap-3 relative z-10">
-                  <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-text-sidebar-muted group-hover:text-text-sidebar")} />
-                  <span>{item.label}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 relative z-10">
-                  {item.hasSubmenu && (
-                    <div 
-                      onClick={(e) => toggleSubmenu(item.id, e)}
-                      className={cn(
-                        "w-4 h-4 flex items-center justify-center transition-transform duration-200",
-                        openMenus[item.id] ? "rotate-180" : "",
-                      )}
-                    >
-                      <ChevronDown className="w-4 h-4" />
-                    </div>
-                  )}
-                </div>
-              </button>
-            </div>
+              </AnimatePresence>
+            </button>
           );
         })}
       </nav>
 
-      {/* Logout */}
-      <div className="p-4 mt-auto">
-         <button
-            onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors text-text-sidebar-muted hover:text-white hover:bg-white/5"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Log Out</span>
-          </button>
+      <div className="mt-auto flex flex-col gap-4 w-full px-4">
+        <button 
+          onClick={() => onViewChange('settings')}
+          className={cn(
+            "relative flex items-center transition-all duration-300 shrink-0",
+            isExpanded ? "rounded-xl px-4 py-3 h-14" : "rounded-2xl aspect-square justify-center h-16 w-16 mx-auto",
+            currentView === 'settings' 
+              ? "bg-[#E6F0EA]/80 text-emerald-600 shadow-sm border border-emerald-100/50" 
+              : "text-slate-400 hover:bg-white/50 hover:text-slate-600"
+          )}
+        >
+          {currentView === 'settings' && !isExpanded && (
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-emerald-500 rounded-r-full shadow-sm" />
+          )}
+          {currentView === 'settings' && isExpanded && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-emerald-500 rounded-r-full shadow-sm" />
+          )}
+          
+          <div className="relative">
+            <Settings className="w-6 h-6 relative z-10 shrink-0" />
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white/50 z-20" />
+          </div>
+          
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                className="ml-4 font-medium whitespace-nowrap"
+              >
+                Settings
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+        
+        <button className={cn(
+            "flex items-center text-slate-400 hover:bg-white/50 hover:text-slate-600 transition-colors shrink-0",
+            isExpanded ? "rounded-xl px-4 py-3 h-14" : "rounded-2xl aspect-square justify-center h-16 w-16 mx-auto"
+        )}>
+           <CheckCircle2 className="w-6 h-6 shrink-0" strokeWidth={1.5} />
+           <AnimatePresence>
+            {isExpanded && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                className="ml-4 font-medium whitespace-nowrap"
+              >
+                Tasks
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
       </div>
-    </div>
-  );
-}
-
-function UserIcon(props: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
+    </motion.div>
   );
 }

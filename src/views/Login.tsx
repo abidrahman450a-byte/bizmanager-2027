@@ -18,8 +18,13 @@ export function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-bg-surface flex items-center justify-center p-6 selection:bg-blue-500/30">
-      <div className="w-full max-w-[360px]">
+    <div className="min-h-screen bg-[#0A0F1C] flex items-center justify-center p-6 selection:bg-blue-500/30 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0A0F1C] to-[#0A0F1C] pointer-events-none" />
+      <div className="absolute -top-[300px] -right-[300px] w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute -bottom-[300px] -left-[300px] w-[600px] h-[600px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="w-full max-w-[360px] relative z-10">
         <div className="text-center mb-12">
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}

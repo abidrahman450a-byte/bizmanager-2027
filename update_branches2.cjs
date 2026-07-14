@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MapPin, Users, ArrowUp, Activity, ArrowRight, ArrowLeft, Package, ShoppingCart, Box, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { MapPin, Users, ArrowUp, Activity, ArrowRight, ArrowLeft, Package, ShoppingCart, Box, TrendingUp, TrendingDown } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, Tooltip, YAxis, BarChart, Bar, XAxis, CartesianGrid, Area, AreaChart, Cell } from 'recharts';
 
 const MOCK_BRANCHES = [
@@ -14,10 +16,10 @@ const MOCK_BRANCHES = [
     inventoryStock: 8500,
     image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200&h=800',
     topItems: [
-      { id: 'i1', name: 'Premium Wireless Headphones', stock: 120, sold: 45, trend: '+12%', status: 'high', price: 299 },
-      { id: 'i2', name: 'Ergonomic Office Chair', stock: 45, sold: 12, trend: '+5%', status: 'medium', price: 549 },
-      { id: 'i3', name: 'Mechanical Keyboard v2', stock: 200, sold: 89, trend: '+24%', status: 'high', price: 149 },
-      { id: 'i4', name: '4K Ultra Monitor', stock: 15, sold: 8, trend: '-2%', status: 'low', price: 699 },
+      { id: 'i1', name: 'Premium Wireless Headphones', stock: 120, sold: 45, trend: '+12%', status: 'high' },
+      { id: 'i2', name: 'Ergonomic Office Chair', stock: 45, sold: 12, trend: '+5%', status: 'medium' },
+      { id: 'i3', name: 'Mechanical Keyboard v2', stock: 200, sold: 89, trend: '+24%', status: 'high' },
+      { id: 'i4', name: '4K Ultra Monitor', stock: 15, sold: 8, trend: '-2%', status: 'low' },
     ]
   },
   { 
@@ -30,10 +32,10 @@ const MOCK_BRANCHES = [
     inventoryStock: 6200,
     image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=1200&h=800',
     topItems: [
-      { id: 'i5', name: 'Smart Home Hub', stock: 85, sold: 22, trend: '+8%', status: 'medium', price: 129 },
-      { id: 'i6', name: 'Noise-Cancelling Earbuds', stock: 320, sold: 150, trend: '+35%', status: 'high', price: 199 },
-      { id: 'i7', name: 'USB-C Docking Station', stock: 110, sold: 40, trend: '+15%', status: 'high', price: 89 },
-      { id: 'i8', name: 'Webcam 1080p', stock: 40, sold: 5, trend: '-5%', status: 'low', price: 79 },
+      { id: 'i5', name: 'Smart Home Hub', stock: 85, sold: 22, trend: '+8%', status: 'medium' },
+      { id: 'i6', name: 'Noise-Cancelling Earbuds', stock: 320, sold: 150, trend: '+35%', status: 'high' },
+      { id: 'i7', name: 'USB-C Docking Station', stock: 110, sold: 40, trend: '+15%', status: 'high' },
+      { id: 'i8', name: 'Webcam 1080p', stock: 40, sold: 5, trend: '-5%', status: 'low' },
     ]
   },
   { 
@@ -46,10 +48,10 @@ const MOCK_BRANCHES = [
     inventoryStock: 4100,
     image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=1200&h=800',
     topItems: [
-      { id: 'i9', name: 'Laptop Stand Aluminum', stock: 150, sold: 60, trend: '+18%', status: 'high', price: 49 },
-      { id: 'i10', name: 'Wireless Mouse', stock: 400, sold: 110, trend: '+10%', status: 'medium', price: 39 },
-      { id: 'i11', name: 'Desk Mat Large', stock: 80, sold: 25, trend: '+5%', status: 'medium', price: 29 },
-      { id: 'i12', name: 'Monitor Arm', stock: 25, sold: 4, trend: '-10%', status: 'low', price: 119 },
+      { id: 'i9', name: 'Laptop Stand Aluminum', stock: 150, sold: 60, trend: '+18%', status: 'high' },
+      { id: 'i10', name: 'Wireless Mouse', stock: 400, sold: 110, trend: '+10%', status: 'medium' },
+      { id: 'i11', name: 'Desk Mat Large', stock: 80, sold: 25, trend: '+5%', status: 'medium' },
+      { id: 'i12', name: 'Monitor Arm', stock: 25, sold: 4, trend: '-10%', status: 'low' },
     ]
   },
   { 
@@ -62,22 +64,21 @@ const MOCK_BRANCHES = [
     inventoryStock: 5400,
     image: 'https://images.unsplash.com/photo-1577416412292-747c6607f055?auto=format&fit=crop&q=80&w=1200&h=800',
     topItems: [
-      { id: 'i13', name: 'Bluetooth Speaker Portable', stock: 210, sold: 85, trend: '+22%', status: 'high', price: 89 },
-      { id: 'i14', name: 'Power Bank 20000mAh', stock: 350, sold: 120, trend: '+14%', status: 'high', price: 59 },
-      { id: 'i15', name: 'Travel Adapter Universal', stock: 120, sold: 45, trend: '+8%', status: 'medium', price: 35 },
-      { id: 'i16', name: 'Action Camera 4K', stock: 30, sold: 12, trend: '+2%', status: 'low', price: 249 },
+      { id: 'i13', name: 'Bluetooth Speaker Portable', stock: 210, sold: 85, trend: '+22%', status: 'high' },
+      { id: 'i14', name: 'Power Bank 20000mAh', stock: 350, sold: 120, trend: '+14%', status: 'high' },
+      { id: 'i15', name: 'Travel Adapter Universal', stock: 120, sold: 45, trend: '+8%', status: 'medium' },
+      { id: 'i16', name: 'Action Camera 4K', stock: 30, sold: 12, trend: '+2%', status: 'low' },
     ]
   },
 ];
 
-const generateChartData = (base: number, variance: number) => Array.from({length: 20}, (_, i) => ({ val: Math.max(0, base + Math.random() * variance - (variance/2)), id: i }));
+const generateChartData = (base: number, variance: number) => Array.from({length: 20}, (_, i) => ({ val: base + Math.random() * variance - (variance/2), id: i }));
 const generateVisitorData = () => Array.from({length: 7}, (_, i) => ({ day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i], visitors: Math.floor(Math.random() * 500) + 100 }));
-const generateItemsData = (base: number) => Array.from({length: 12}, (_, i) => ({ time: `${i+8}:00`, sold: Math.floor(Math.random() * (base/10)) + 10 }));
-const generateSparkline = () => Array.from({length: 15}, () => ({ val: Math.random() * 100 }));
+const generateItemsData = (base: number) => Array.from({length: 12}, (_, i) => ({ time: \`\${i+8}:00\`, sold: Math.floor(Math.random() * (base/10)) + 10 }));
+const generateSparkline = () => Array.from({length: 10}, () => ({ val: Math.random() * 100 }));
 
 export function Branches() {
   const [selectedBranch, setSelectedBranch] = useState<typeof MOCK_BRANCHES[0] | null>(null);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [branches] = useState(MOCK_BRANCHES);
   
   const [liveData, setLiveData] = useState<Record<number, any>>(() => {
@@ -92,12 +93,7 @@ export function Branches() {
         visitorChart: generateVisitorData(),
         itemsChart: generateItemsData(b.itemsSold),
         stockChart: generateChartData(b.inventoryStock, 100),
-        topItems: b.topItems.map(item => ({ 
-           ...item, 
-           sparkline: generateSparkline(),
-           largeChart: generateChartData(item.sold * 10, 50),
-           monthlyChart: generateChartData(item.stock * 2, 20)
-        }))
+        topItems: b.topItems.map(item => ({ ...item, sparkline: generateSparkline() }))
       };
     });
     return initial;
@@ -116,21 +112,16 @@ export function Branches() {
           const newItemsSold = old.itemsSold + Math.floor(Math.random() * 5);
           const newStock = Math.max(0, old.inventoryStock - Math.floor(Math.random() * 3));
           
-          const newChart = [...old.chart.slice(1), { val: Math.max(0, newRev), id: Date.now() }];
+          const newChart = [...old.chart.slice(1), { val: newRev, id: Date.now() }];
           const newItemsChart = [...old.itemsChart.slice(1), { time: 'Now', sold: Math.floor(Math.random() * 50) + 10 }];
           const newStockChart = [...old.stockChart.slice(1), { val: newStock, id: Date.now() }];
           
-          const newTopItems = old.topItems.map((item: any) => {
-             const newlySold = Math.floor(Math.random() * 2);
-             return {
-               ...item,
-               stock: Math.max(0, item.stock - newlySold),
-               sold: item.sold + newlySold,
-               sparkline: [...item.sparkline.slice(1), { val: Math.random() * 100 }],
-               largeChart: [...item.largeChart.slice(1), { val: Math.max(0, item.largeChart[item.largeChart.length-1].val + newlySold*10 + (Math.random()*20-10)), id: Date.now() }],
-               monthlyChart: [...item.monthlyChart.slice(1), { val: Math.max(0, item.monthlyChart[item.monthlyChart.length-1].val - newlySold + (Math.random()*5-2)), id: Date.now() }]
-             }
-          });
+          const newTopItems = old.topItems.map((item: any) => ({
+             ...item,
+             stock: Math.max(0, item.stock - Math.floor(Math.random() * 2)),
+             sold: item.sold + Math.floor(Math.random() * 2),
+             sparkline: [...item.sparkline.slice(1), { val: Math.random() * 100 }]
+          }));
 
           next[numKey] = {
             ...old,
@@ -144,188 +135,37 @@ export function Branches() {
             topItems: newTopItems
           };
         });
-        
-        // Update selected item if one is selected
-        if (selectedItem) {
-           const branchData = next[selectedBranch?.id || 0];
-           if (branchData) {
-              const updatedItem = branchData.topItems.find((i: any) => i.id === selectedItem.id);
-              if (updatedItem) setSelectedItem(updatedItem);
-           }
-        }
-        
         return next;
       });
-    }, 2500);
+    }, 3000);
     return () => clearInterval(interval);
-  }, [selectedBranch, selectedItem]);
+  }, []);
 
   const formatMoney = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
-
-  const handleBack = () => {
-    if (selectedItem) {
-       setSelectedItem(null);
-    } else if (selectedBranch) {
-       setSelectedBranch(null);
-    }
-  };
 
   return (
     <div className="flex flex-col min-h-full text-slate-800 relative z-10">
       <div className="flex items-center gap-4 mb-8">
         <AnimatePresence mode="popLayout">
-          {(selectedBranch || selectedItem) && (
+          {selectedBranch && (
             <motion.button
               initial={{ opacity: 0, scale: 0.8, width: 0 }}
               animate={{ opacity: 1, scale: 1, width: 'auto' }}
               exit={{ opacity: 0, scale: 0.8, width: 0 }}
-              onClick={handleBack}
+              onClick={() => setSelectedBranch(null)}
               className="w-10 h-10 rounded-xl bg-white/50 border border-white/60 flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-600 shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
             </motion.button>
           )}
         </AnimatePresence>
-        <motion.h2 layout className="text-2xl font-bold font-display text-slate-800 flex items-center gap-2">
-          {selectedItem ? (
-             <><Box className="w-6 h-6 text-emerald-500" /> {selectedItem.name}</>
-          ) : selectedBranch ? 'Branch Analytics' : 'Active Branches'}
+        <motion.h2 layout className="text-2xl font-bold font-display text-slate-800">
+          {selectedBranch ? 'Branch Analytics' : 'Active Branches'}
         </motion.h2>
       </div>
 
       <AnimatePresence mode="wait">
-        {selectedItem ? (
-           // ITEM DETAIL VIEW
-           <motion.div
-             key="item-detail"
-             layoutId={`item-${selectedItem.id}`}
-             className="glass-card flex-1 flex flex-col p-6 md:p-8 overflow-y-auto relative z-20 shadow-2xl pb-12"
-             initial={{ borderRadius: 24, opacity: 0, y: 20 }}
-             animate={{ borderRadius: 32, opacity: 1, y: 0 }}
-             exit={{ opacity: 0, scale: 0.95 }}
-           >
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 shrink-0">
-                <motion.div 
-                   initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-                   className="bg-white/40 border border-white/60 p-6 rounded-3xl shadow-sm flex items-center gap-4"
-                >
-                   <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-inner">
-                      <ShoppingCart className="w-7 h-7" />
-                   </div>
-                   <div>
-                      <p className="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider text-[10px]">Total Sold</p>
-                      <motion.p key={selectedItem.sold} initial={{ scale: 1.2, color: '#3B82F6' }} animate={{ scale: 1, color: '#1E293B' }} className="text-3xl font-bold font-display">
-                         {selectedItem.sold.toLocaleString()}
-                      </motion.p>
-                   </div>
-                </motion.div>
-
-                <motion.div 
-                   initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
-                   className="bg-white/40 border border-white/60 p-6 rounded-3xl shadow-sm flex items-center gap-4"
-                >
-                   <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 shadow-inner">
-                      <Package className="w-7 h-7" />
-                   </div>
-                   <div>
-                      <p className="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider text-[10px]">Inventory Left</p>
-                      <motion.p key={selectedItem.stock} initial={{ scale: 1.2, color: '#A855F7' }} animate={{ scale: 1, color: '#1E293B' }} className="text-3xl font-bold font-display">
-                         {selectedItem.stock.toLocaleString()}
-                      </motion.p>
-                   </div>
-                </motion.div>
-
-                <motion.div 
-                   initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}
-                   className="bg-white/40 border border-white/60 p-6 rounded-3xl shadow-sm flex items-center gap-4"
-                >
-                   <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-inner">
-                      <DollarSign className="w-7 h-7" />
-                   </div>
-                   <div>
-                      <p className="text-sm text-slate-500 font-semibold mb-1 uppercase tracking-wider text-[10px]">Revenue Generated</p>
-                      <motion.p key={selectedItem.sold} initial={{ scale: 1.05 }} animate={{ scale: 1 }} className="text-3xl font-bold font-display">
-                         {formatMoney(selectedItem.sold * selectedItem.price)}
-                      </motion.p>
-                   </div>
-                </motion.div>
-             </div>
-
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 shrink-0">
-               {/* Item Sales Area Chart */}
-               <motion.div 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-                  className="bg-white/30 border border-white/50 rounded-3xl p-6 flex flex-col relative overflow-hidden group hover:bg-white/40 transition-colors"
-               >
-                  <div className="flex justify-between items-center mb-6">
-                     <h4 className="font-semibold text-slate-700 flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-emerald-500" /> Live Sales Velocity
-                     </h4>
-                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedItem.status === 'high' ? 'bg-emerald-100 text-emerald-700' : selectedItem.status === 'medium' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {selectedItem.trend}
-                     </span>
-                  </div>
-                  <div className="flex-1 w-full min-h-[300px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                       <AreaChart data={selectedItem.largeChart || []}>
-                         <defs>
-                           <linearGradient id="colorItemSales" x1="0" y1="0" x2="0" y2="1">
-                             <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                             <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                           </linearGradient>
-                         </defs>
-                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                         <XAxis dataKey="id" axisLine={false} tickLine={false} tick={false} />
-                         <YAxis hide domain={['auto', 'auto']} />
-                         <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} labelStyle={{display: 'none'}} />
-                         <Area 
-                            type="monotone" 
-                            dataKey="val" 
-                            stroke="#10B981" 
-                            strokeWidth={3}
-                            fillOpacity={1} 
-                            fill="url(#colorItemSales)"
-                            activeDot={{ r: 8, strokeWidth: 3, stroke: '#fff' }}
-                            animationDuration={300}
-                         />
-                       </AreaChart>
-                     </ResponsiveContainer>
-                  </div>
-               </motion.div>
-
-               {/* Item Stock Line Chart */}
-               <motion.div 
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-                  className="bg-white/30 border border-white/50 rounded-3xl p-6 flex flex-col relative overflow-hidden group hover:bg-white/40 transition-colors"
-               >
-                  <h4 className="font-semibold text-slate-700 mb-6 flex items-center gap-2">
-                     <Package className="w-5 h-5 text-purple-500" /> Stock Depletion Forecast
-                  </h4>
-                  <div className="flex-1 w-full min-h-[300px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                       <LineChart data={selectedItem.monthlyChart || []}>
-                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                         <XAxis dataKey="id" axisLine={false} tickLine={false} tick={false} />
-                         <YAxis hide domain={['auto', 'auto']} />
-                         <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} labelStyle={{display: 'none'}} />
-                         <Line 
-                             type="monotone" 
-                             dataKey="val" 
-                             stroke="#A855F7" 
-                             strokeWidth={4} 
-                             dot={false}
-                            activeDot={{ r: 8, fill: '#A855F7', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(168,85,247,0.3))` }}
-                            animationDuration={300}
-                         />
-                       </LineChart>
-                     </ResponsiveContainer>
-                  </div>
-               </motion.div>
-             </div>
-           </motion.div>
-        ) : !selectedBranch ? (
-           // GRID VIEW
+        {!selectedBranch ? (
           <motion.div 
             key="grid"
             initial={{ opacity: 0 }}
@@ -339,7 +179,7 @@ export function Branches() {
               return (
               <motion.div 
                 key={branch.id}
-                layoutId={`card-${branch.id}`}
+                layoutId={\`card-\${branch.id}\`}
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: i * 0.1, type: 'spring', damping: 20 }}
@@ -347,20 +187,20 @@ export function Branches() {
                 className="glass-card flex flex-col group cursor-pointer hover:shadow-2xl hover:-translate-y-1 hover:border-emerald-500/30 transition-all overflow-hidden relative"
               >
                 {/* Image Header */}
-                <motion.div layoutId={`image-${branch.id}`} className="h-40 w-full relative overflow-hidden">
+                <motion.div layoutId={\`image-\${branch.id}\`} className="h-40 w-full relative overflow-hidden">
                    <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-transparent transition-colors z-10" />
                    <img src={branch.image} alt={branch.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                    <div className="absolute bottom-3 left-4 z-20 flex items-center gap-2">
-                     <motion.div layoutId={`icon-${branch.id}`} className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur flex items-center justify-center text-emerald-600 shadow-sm">
+                     <motion.div layoutId={\`icon-\${branch.id}\`} className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur flex items-center justify-center text-emerald-600 shadow-sm">
                         <MapPin className="w-4 h-4" />
                      </motion.div>
-                     <motion.h3 layoutId={`title-${branch.id}`} className="font-bold text-white text-xl drop-shadow-md">{branch.name}</motion.h3>
+                     <motion.h3 layoutId={\`title-\${branch.id}\`} className="font-bold text-white text-xl drop-shadow-md">{branch.name}</motion.h3>
                    </div>
                    <motion.span 
                     key={branch.status}
                     initial={{ scale: 0.8 }}
                     animate={{ scale: 1 }}
-                    className={`absolute top-3 right-3 z-20 px-2.5 py-1 text-xs font-bold rounded-lg backdrop-blur-md ${branch.status === 'Optimal' ? 'bg-emerald-500/80 text-white' : 'bg-amber-500/80 text-white'}`}
+                    className={\`absolute top-3 right-3 z-20 px-2.5 py-1 text-xs font-bold rounded-lg backdrop-blur-md \${branch.status === 'Optimal' ? 'bg-emerald-500/80 text-white' : 'bg-amber-500/80 text-white'}\`}
                   >
                     {branch.status}
                   </motion.span>
@@ -406,7 +246,7 @@ export function Branches() {
                      <div className="h-10 w-24">
                         <ResponsiveContainer width="100%" height="100%">
                            <LineChart data={live.chart || []}>
-                              <Line type="monotone" dataKey="val" stroke="#10B981" strokeWidth={2} dot={false} isAnimationActive={false} />
+                              <Line type="monotone" dataKey="val" stroke="#10B981" strokeWidth={2} dot={false} />
                            </LineChart>
                         </ResponsiveContainer>
                      </div>
@@ -419,25 +259,24 @@ export function Branches() {
             )})}
           </motion.div>
         ) : (
-           // BRANCH DETAIL VIEW
           <motion.div 
             key="detail"
-            layoutId={`card-${selectedBranch.id}`}
+            layoutId={\`card-\${selectedBranch.id}\`}
             className="glass-card flex-1 flex flex-col p-6 md:p-8 overflow-y-auto relative z-20 shadow-2xl pb-12"
             initial={{ borderRadius: 24 }}
             animate={{ borderRadius: 32 }}
           >
             {/* Header with image */}
-            <motion.div layoutId={`image-${selectedBranch.id}`} className="h-64 w-full relative overflow-hidden rounded-2xl mb-8 shadow-inner shrink-0">
+            <motion.div layoutId={\`image-\${selectedBranch.id}\`} className="h-64 w-full relative overflow-hidden rounded-2xl mb-8 shadow-inner shrink-0">
                <div className="absolute inset-0 bg-slate-900/40 z-10" />
                <img src={selectedBranch.image} alt={selectedBranch.name} className="w-full h-full object-cover" />
                <div className="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
                   <div className="flex items-center gap-4">
-                    <motion.div layoutId={`icon-${selectedBranch.id}`} className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
+                    <motion.div layoutId={\`icon-\${selectedBranch.id}\`} className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
                       <MapPin className="w-8 h-8" />
                     </motion.div>
                     <div>
-                      <motion.h3 layoutId={`title-${selectedBranch.id}`} className="text-4xl font-bold font-display text-white drop-shadow-lg mb-1">{selectedBranch.name}</motion.h3>
+                      <motion.h3 layoutId={\`title-\${selectedBranch.id}\`} className="text-4xl font-bold font-display text-white drop-shadow-lg mb-1">{selectedBranch.name}</motion.h3>
                       <p className="text-white/80 text-lg flex items-center gap-2 drop-shadow">
                         {selectedBranch.location} 
                         <span className="w-1.5 h-1.5 rounded-full bg-white/50 inline-block"></span> 
@@ -548,7 +387,6 @@ export function Branches() {
                             fillOpacity={1} 
                             fill="url(#colorSales)"
                             activeDot={{ r: 6, strokeWidth: 2, stroke: '#fff' }}
-                            animationDuration={500}
                          />
                        </AreaChart>
                      </ResponsiveContainer>
@@ -575,8 +413,7 @@ export function Branches() {
                              strokeWidth={4} 
                              dot={false}
                             activeDot={{ r: 8, fill: '#A855F7', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(168,85,247,0.3))` }}
-                            animationDuration={500}
+                            style={{ filter: \`drop-shadow(0px 8px 12px rgba(168,85,247,0.3))\` }}
                          />
                        </LineChart>
                      </ResponsiveContainer>
@@ -604,14 +441,12 @@ export function Branches() {
                   {(liveData[selectedBranch.id]?.topItems || []).map((item: any, idx: number) => (
                      <motion.div 
                         key={item.id}
-                        layoutId={`item-${item.id}`}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + (idx * 0.1) }}
-                        onClick={() => setSelectedItem(item)}
-                        className="bg-white/50 border border-white/80 rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg hover:border-emerald-500/30 hover:-translate-y-1 hover:bg-white transition-all group cursor-pointer"
+                        className="bg-white/50 border border-white/80 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md hover:bg-white/80 transition-all group"
                      >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${item.status === 'high' ? 'bg-emerald-100 text-emerald-600' : item.status === 'medium' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
+                        <div className={\`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm \${item.status === 'high' ? 'bg-emerald-100 text-emerald-600' : item.status === 'medium' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}\`}>
                            {item.status === 'high' ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
                         </div>
                         
@@ -638,17 +473,13 @@ export function Branches() {
                                     stroke={item.status === 'high' ? '#10B981' : item.status === 'medium' ? '#3B82F6' : '#F97316'} 
                                     strokeWidth={2} 
                                     dot={false}
-                                    isAnimationActive={false}
                                  />
                               </LineChart>
                            </ResponsiveContainer>
                         </div>
 
-                        <div className="flex flex-col items-end shrink-0 gap-1">
-                           <div className={`text-sm font-bold ${item.trend.startsWith('+') ? 'text-emerald-500' : 'text-orange-500'}`}>
-                              {item.trend}
-                           </div>
-                           <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                        <div className={\`text-sm font-bold text-right shrink-0 \${item.trend.startsWith('+') ? 'text-emerald-500' : 'text-orange-500'}\`}>
+                           {item.trend}
                         </div>
                      </motion.div>
                   ))}
@@ -677,8 +508,7 @@ export function Branches() {
                              strokeWidth={4} 
                              dot={false}
                             activeDot={{ r: 8, fill: '#10B981', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(16,185,129,0.3))` }}
-                            animationDuration={500}
+                            style={{ filter: \`drop-shadow(0px 8px 12px rgba(16,185,129,0.3))\` }}
                          />
                        </LineChart>
                      </ResponsiveContainer>
@@ -702,7 +532,7 @@ export function Branches() {
                            <Bar dataKey="visitors" fill="#64748B" radius={[6, 6, 0, 0]}>
                               {
                                 (liveData[selectedBranch.id]?.visitorChart || []).map((entry: any, index: number) => (
-                                  <Cell key={`cell-${index}`} fill={index === 3 ? '#3B82F6' : '#CBD5E1'} />
+                                  <Cell key={\`cell-\${index}\`} fill={index === 3 ? '#3B82F6' : '#CBD5E1'} />
                                 ))
                               }
                            </Bar>
@@ -718,3 +548,6 @@ export function Branches() {
     </div>
   );
 }
+`
+
+fs.writeFileSync('src/views/Branches.tsx', code);

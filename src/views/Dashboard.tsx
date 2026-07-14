@@ -1,195 +1,224 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { ArrowUpRight } from 'lucide-react';
 import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar
+  ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
-import { 
-  TrendingUp, Users, DollarSign, Activity, 
-  ArrowUpRight, ArrowDownRight
-} from 'lucide-react';
-import { mockBranches } from '../data';
 
-const performanceData = [
-  { name: 'Jan', revenue: 4000, profit: 2400 },
-  { name: 'Feb', revenue: 3000, profit: 1398 },
-  { name: 'Mar', revenue: 2000, profit: 980 },
-  { name: 'Apr', revenue: 2780, profit: 3908 },
-  { name: 'May', revenue: 1890, profit: 4800 },
-  { name: 'Jun', revenue: 2390, profit: 3800 },
-  { name: 'Jul', revenue: 3490, profit: 4300 },
+const lineData = [
+  { name: 'Jan', sales: 2400, profit: 4000 },
+  { name: 'Feb', sales: 1398, profit: 3000 },
+  { name: 'Mar', sales: 9800, profit: 2000 },
+  { name: 'Apr', sales: 3908, profit: 2780 },
+  { name: 'May', sales: 4800, profit: 1890 },
+  { name: 'Jun', sales: 3800, profit: 2390 },
+  { name: 'Jul', sales: 4300, profit: 3490 },
+];
+
+const pieData = [
+  { name: 'Cunto', value: 40, color: '#2563eb' },
+  { name: 'Cabitaan', value: 20, color: '#10b981' },
+  { name: 'Electronics', value: 15, color: '#f97316' },
+  { name: 'Dharka', value: 15, color: '#8b5cf6' },
+  { name: 'Kale', value: 10, color: '#64748b' },
+];
+
+const barData = [
+  { name: 'Jan', income: 400, expenses: 200 },
+  { name: 'Feb', income: 450, expenses: 210 },
+  { name: 'Mar', income: 420, expenses: 250 },
+  { name: 'Apr', income: 600, expenses: 280 },
+  { name: 'May', income: 720, expenses: 220 },
+  { name: 'Jun', income: 500, expenses: 200 },
+  { name: 'Jul', income: 450, expenses: 180 },
+];
+
+const recentOrders = [
+  { id: '#1024', customer: 'Cabdullahi', amount: '$250', status: 'PAID', color: 'emerald' },
+  { id: '#1023', customer: 'Ayaan', amount: '$120', status: 'PAID', color: 'emerald' },
+  { id: '#1022', customer: 'Mustafe', amount: '$330', status: 'PENDING', color: 'orange' },
+  { id: '#1021', customer: 'Fadumo', amount: '$75', status: 'PAID', color: 'emerald' },
 ];
 
 export function Dashboard() {
-  const totalRevenue = mockBranches.reduce((sum, b) => sum + b.revenue, 0);
-  const totalProfit = mockBranches.reduce((sum, b) => sum + b.profit, 0);
-  const totalEmployees = mockBranches.reduce((sum, b) => sum + b.employees, 0);
-
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Revenue" 
-          amount={`$${totalRevenue.toLocaleString()}`} 
-          change="+12.5%" 
-          isPositive={true} 
-          icon={<DollarSign className="w-6 h-6 text-blue-600" />}
-          delay={0.1}
-        />
-        <StatCard 
-          title="Total Profit" 
-          amount={`$${totalProfit.toLocaleString()}`} 
-          change="+8.2%" 
-          isPositive={true} 
-          icon={<TrendingUp className="w-6 h-6 text-green-600" />}
-          delay={0.2}
-        />
-        <StatCard 
-          title="Total Employees" 
-          amount={totalEmployees.toString()} 
-          change="+4" 
-          isPositive={true} 
-          icon={<Users className="w-6 h-6 text-purple-600" />}
-          delay={0.3}
-        />
-        <StatCard 
-          title="Expenses" 
-          amount="$45,231" 
-          change="+2.4%" 
-          isPositive={false} 
-          icon={<Activity className="w-6 h-6 text-orange-600" />}
-          delay={0.4}
-        />
+    <>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <StatCard title="Total Sales" value="$12,500" trend="18%" />
+        <StatCard title="Profit" value="$10,200" trend="22%" />
+        <StatCard title="Expenses" value="$2,300" trend="8%" />
+        <StatCard title="Customers" value="512" trend="14%" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
-          className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Revenue vs Profit</h3>
-            <select className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
-              <option>Last 7 months</option>
-              <option>This Year</option>
-            </select>
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+        
+        {/* Line Chart */}
+        <div className="xl:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-lg font-bold text-slate-900">Dashboard Overview</h2>
+            <div className="flex gap-5">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+                <span className="text-sm font-medium text-slate-600">Sales</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>
+                <span className="text-sm font-medium text-slate-600">Profit</span>
+              </div>
+            </div>
           </div>
-          <div className="h-[300px]">
+          <div className="h-[320px] w-full mt-auto">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <ComposedChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#1D4ED8" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorProf" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                  <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.12}/>
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dy={15} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dx={-10} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                  cursor={{ stroke: '#e2e8f0', strokeWidth: 1, strokeDasharray: '4 4' }}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#1D4ED8" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
-                <Area type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorProf)" />
-              </AreaChart>
+                <Area type="monotone" dataKey="profit" stroke="none" fillOpacity={1} fill="url(#colorProfit)" />
+                <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#2563eb', stroke: '#fff', strokeWidth: 2}} />
+                <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2}} />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.6 }}
-          className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Branch Performance</h3>
-          </div>
-          <div className="h-[300px]">
+        {/* Pie Chart */}
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+          <h2 className="text-lg font-bold text-slate-900 mb-6 invisible">Top Categories</h2>
+          <div className="flex-1 relative min-h-[240px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockBranches.slice(0, 4)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5E7EB" />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#374151', fontSize: 12, fontWeight: 500 }} width={80} />
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={75}
+                  outerRadius={105}
+                  paddingAngle={3}
+                  dataKey="value"
+                  stroke="none"
+                  cornerRadius={2}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
                 <Tooltip 
-                  cursor={{ fill: '#F3F4F6' }}
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                 />
-                <Bar dataKey="revenue" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={20} />
-              </BarChart>
+              </PieChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
-      </div>
-      
-      {/* Activity Feed Row */}
-      <div className="grid grid-cols-1 gap-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.7, ease: 'easeOut' }}
-          className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Recent Activity Feed</h3>
-            <button className="text-sm font-medium text-blue-600 hover:text-blue-700">View all</button>
-          </div>
-          <div className="space-y-6">
-            {[
-              { id: 1, user: 'Sarah Jenkins', action: 'updated branch details for', target: 'Downtown HQ', time: 'Just now', initial: 'SJ', color: 'bg-blue-100 text-blue-600' },
-              { id: 2, user: 'Michael Chen', action: 'approved an expense of', target: '$450.00', time: '10 mins ago', initial: 'MC', color: 'bg-green-100 text-green-600' },
-              { id: 3, user: 'Amina Ali', action: 'processed a new sale at', target: 'Westside Plaza', time: '1 hour ago', initial: 'AA', color: 'bg-purple-100 text-purple-600' },
-              { id: 4, user: 'System', action: 'completed automated backup', target: 'Database', time: '3 hours ago', initial: 'SY', color: 'bg-gray-100 text-gray-600' },
-              { id: 5, user: 'David Rodriguez', action: 'added a new team member to', target: 'North Hills', time: '5 hours ago', initial: 'DR', color: 'bg-orange-100 text-orange-600' },
-            ].map((activity, idx) => (
-              <div key={activity.id} className="flex gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${activity.color}`}>
-                  {activity.initial}
-                </div>
-                <div className="flex-1 pb-6 border-b border-gray-50 last:border-0 last:pb-0">
-                  <div className="text-sm text-gray-900 mb-1">
-                    <span className="font-semibold">{activity.user}</span> {activity.action} <span className="font-semibold">{activity.target}</span>
-                  </div>
-                  <div className="text-xs text-gray-500">{activity.time}</div>
-                </div>
+          
+          <div className="grid grid-cols-2 gap-y-5 gap-x-2 mt-8 px-2">
+            {pieData.map((item, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
+                <span className="text-[13px] font-medium text-slate-600">{item.name}</span>
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
+
       </div>
-    </div>
+
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        
+        {/* Recent Orders */}
+        <div className="xl:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
+          <h2 className="text-lg font-bold text-slate-900 mb-6">Recent Orders</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-4 text-sm font-medium text-slate-500">Order ID</th>
+                  <th className="pb-4 text-sm font-medium text-slate-500">Customer</th>
+                  <th className="pb-4 text-sm font-medium text-slate-500">Amount</th>
+                  <th className="pb-4 text-sm font-medium text-slate-500">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {recentOrders.map((order, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-4 text-sm text-slate-600 font-medium">{order.id}</td>
+                    <td className="py-4 text-sm font-bold text-slate-800">{order.customer}</td>
+                    <td className="py-4 text-sm font-bold text-slate-900">{order.amount}</td>
+                    <td className="py-4">
+                      <span className={`px-3 py-1 text-[11px] font-bold rounded-full ${
+                        order.color === 'emerald' 
+                          ? 'bg-emerald-50 text-emerald-600' 
+                          : 'bg-orange-50 text-orange-600'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Income vs Expenses */}
+        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg font-bold text-slate-900">Income vs Expenses</h2>
+            <div className="flex gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
+                <span className="text-xs font-medium text-slate-600">Income</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>
+                <span className="text-xs font-medium text-slate-600">Expenses</span>
+              </div>
+            </div>
+          </div>
+          <div className="h-[280px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dx={-10} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  cursor={{ fill: '#f8fafc' }}
+                />
+                <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+                <Bar dataKey="expenses" fill="#2563eb" radius={[4, 4, 0, 0]} barSize={12} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+      </div>
+    </>
   );
 }
 
-function StatCard({ title, amount, change, isPositive, delay = 0, icon }: { title: string, amount: string, change: string, isPositive: boolean, delay?: number, icon: React.ReactNode }) {
-  const isGood = title === 'Expenses' ? !isPositive : isPositive;
-  const isActuallyPositiveNumber = change.startsWith('+');
+function StatCard({ title, value, trend }: { title: string, value: string, trend: string }) {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: 'easeOut' }}
-      className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col justify-between h-36 relative overflow-hidden"
-    >
-      <div className="flex justify-between items-start">
-        <div className="text-gray-500 font-medium">{title}</div>
-        <div className="p-2 bg-gray-50 rounded-xl">
-          {icon}
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between h-[130px]">
+      <h3 className="text-slate-500 text-[15px] font-medium">{title}</h3>
+      <div className="flex justify-between items-end">
+        <p className="text-[32px] leading-none font-bold text-slate-800">{value}</p>
+        <div className="flex items-center gap-1 text-[#10b981] font-bold mb-1">
+          <ArrowUpRight className="w-4 h-4 stroke-[3]" />
+          <span className="text-[15px]">{trend}</span>
         </div>
       </div>
-      <div className="flex items-end justify-between mt-2">
-        <div className="text-3xl font-bold text-gray-900 tracking-tight">{amount}</div>
-        <div className={`flex items-center gap-1 text-sm font-bold ${isGood ? 'text-green-500' : 'text-red-500'}`}>
-          {isActuallyPositiveNumber ? <ArrowUpRight className="w-4 h-4 stroke-[3]" /> : <ArrowDownRight className="w-4 h-4 stroke-[3]" />}
-          {change.replace('+', '').replace('-', '')}
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 }

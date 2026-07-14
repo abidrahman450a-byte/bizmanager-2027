@@ -1,28 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1D4ED8; 
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  
-  --color-bg-base: #F4F7FE; 
-  --color-bg-surface: #0B1739; 
-  --color-bg-card: #FFFFFF; 
-  
-  --color-text-main: #111827; 
-  --color-text-muted: #6B7280; 
-  --color-text-sidebar: #F8FAFC; 
-  --color-text-sidebar-muted: #94A3B8; 
-  
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", "Inter", sans-serif;
 }
 
 @layer base {
   body {
-    @apply bg-bg-base text-text-main font-sans antialiased;
+    @apply bg-[#F0F2F5] text-slate-900 font-sans antialiased overflow-hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -31,6 +17,10 @@
 }
 
 @layer utilities {
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem];
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

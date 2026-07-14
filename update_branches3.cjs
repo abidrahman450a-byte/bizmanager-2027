@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MapPin, Users, ArrowUp, Activity, ArrowRight, ArrowLeft, Package, ShoppingCart, Box, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, Tooltip, YAxis, BarChart, Bar, XAxis, CartesianGrid, Area, AreaChart, Cell } from 'recharts';
@@ -72,7 +74,7 @@ const MOCK_BRANCHES = [
 
 const generateChartData = (base: number, variance: number) => Array.from({length: 20}, (_, i) => ({ val: Math.max(0, base + Math.random() * variance - (variance/2)), id: i }));
 const generateVisitorData = () => Array.from({length: 7}, (_, i) => ({ day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i], visitors: Math.floor(Math.random() * 500) + 100 }));
-const generateItemsData = (base: number) => Array.from({length: 12}, (_, i) => ({ time: `${i+8}:00`, sold: Math.floor(Math.random() * (base/10)) + 10 }));
+const generateItemsData = (base: number) => Array.from({length: 12}, (_, i) => ({ time: \`\${i+8}:00\`, sold: Math.floor(Math.random() * (base/10)) + 10 }));
 const generateSparkline = () => Array.from({length: 15}, () => ({ val: Math.random() * 100 }));
 
 export function Branches() {
@@ -198,7 +200,7 @@ export function Branches() {
            // ITEM DETAIL VIEW
            <motion.div
              key="item-detail"
-             layoutId={`item-${selectedItem.id}`}
+             layoutId={\`item-\${selectedItem.id}\`}
              className="glass-card flex-1 flex flex-col p-6 md:p-8 overflow-y-auto relative z-20 shadow-2xl pb-12"
              initial={{ borderRadius: 24, opacity: 0, y: 20 }}
              animate={{ borderRadius: 32, opacity: 1, y: 0 }}
@@ -261,7 +263,7 @@ export function Branches() {
                      <h4 className="font-semibold text-slate-700 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-emerald-500" /> Live Sales Velocity
                      </h4>
-                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedItem.status === 'high' ? 'bg-emerald-100 text-emerald-700' : selectedItem.status === 'medium' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                     <span className={\`px-3 py-1 rounded-full text-xs font-bold \${selectedItem.status === 'high' ? 'bg-emerald-100 text-emerald-700' : selectedItem.status === 'medium' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}\`}>
                         {selectedItem.trend}
                      </span>
                   </div>
@@ -315,7 +317,7 @@ export function Branches() {
                              strokeWidth={4} 
                              dot={false}
                             activeDot={{ r: 8, fill: '#A855F7', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(168,85,247,0.3))` }}
+                            style={{ filter: \`drop-shadow(0px 8px 12px rgba(168,85,247,0.3))\` }}
                             animationDuration={300}
                          />
                        </LineChart>
@@ -339,7 +341,7 @@ export function Branches() {
               return (
               <motion.div 
                 key={branch.id}
-                layoutId={`card-${branch.id}`}
+                layoutId={\`card-\${branch.id}\`}
                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ delay: i * 0.1, type: 'spring', damping: 20 }}
@@ -347,20 +349,20 @@ export function Branches() {
                 className="glass-card flex flex-col group cursor-pointer hover:shadow-2xl hover:-translate-y-1 hover:border-emerald-500/30 transition-all overflow-hidden relative"
               >
                 {/* Image Header */}
-                <motion.div layoutId={`image-${branch.id}`} className="h-40 w-full relative overflow-hidden">
+                <motion.div layoutId={\`image-\${branch.id}\`} className="h-40 w-full relative overflow-hidden">
                    <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-transparent transition-colors z-10" />
                    <img src={branch.image} alt={branch.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                    <div className="absolute bottom-3 left-4 z-20 flex items-center gap-2">
-                     <motion.div layoutId={`icon-${branch.id}`} className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur flex items-center justify-center text-emerald-600 shadow-sm">
+                     <motion.div layoutId={\`icon-\${branch.id}\`} className="w-8 h-8 rounded-lg bg-white/90 backdrop-blur flex items-center justify-center text-emerald-600 shadow-sm">
                         <MapPin className="w-4 h-4" />
                      </motion.div>
-                     <motion.h3 layoutId={`title-${branch.id}`} className="font-bold text-white text-xl drop-shadow-md">{branch.name}</motion.h3>
+                     <motion.h3 layoutId={\`title-\${branch.id}\`} className="font-bold text-white text-xl drop-shadow-md">{branch.name}</motion.h3>
                    </div>
                    <motion.span 
                     key={branch.status}
                     initial={{ scale: 0.8 }}
                     animate={{ scale: 1 }}
-                    className={`absolute top-3 right-3 z-20 px-2.5 py-1 text-xs font-bold rounded-lg backdrop-blur-md ${branch.status === 'Optimal' ? 'bg-emerald-500/80 text-white' : 'bg-amber-500/80 text-white'}`}
+                    className={\`absolute top-3 right-3 z-20 px-2.5 py-1 text-xs font-bold rounded-lg backdrop-blur-md \${branch.status === 'Optimal' ? 'bg-emerald-500/80 text-white' : 'bg-amber-500/80 text-white'}\`}
                   >
                     {branch.status}
                   </motion.span>
@@ -422,22 +424,22 @@ export function Branches() {
            // BRANCH DETAIL VIEW
           <motion.div 
             key="detail"
-            layoutId={`card-${selectedBranch.id}`}
+            layoutId={\`card-\${selectedBranch.id}\`}
             className="glass-card flex-1 flex flex-col p-6 md:p-8 overflow-y-auto relative z-20 shadow-2xl pb-12"
             initial={{ borderRadius: 24 }}
             animate={{ borderRadius: 32 }}
           >
             {/* Header with image */}
-            <motion.div layoutId={`image-${selectedBranch.id}`} className="h-64 w-full relative overflow-hidden rounded-2xl mb-8 shadow-inner shrink-0">
+            <motion.div layoutId={\`image-\${selectedBranch.id}\`} className="h-64 w-full relative overflow-hidden rounded-2xl mb-8 shadow-inner shrink-0">
                <div className="absolute inset-0 bg-slate-900/40 z-10" />
                <img src={selectedBranch.image} alt={selectedBranch.name} className="w-full h-full object-cover" />
                <div className="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end">
                   <div className="flex items-center gap-4">
-                    <motion.div layoutId={`icon-${selectedBranch.id}`} className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
+                    <motion.div layoutId={\`icon-\${selectedBranch.id}\`} className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-lg">
                       <MapPin className="w-8 h-8" />
                     </motion.div>
                     <div>
-                      <motion.h3 layoutId={`title-${selectedBranch.id}`} className="text-4xl font-bold font-display text-white drop-shadow-lg mb-1">{selectedBranch.name}</motion.h3>
+                      <motion.h3 layoutId={\`title-\${selectedBranch.id}\`} className="text-4xl font-bold font-display text-white drop-shadow-lg mb-1">{selectedBranch.name}</motion.h3>
                       <p className="text-white/80 text-lg flex items-center gap-2 drop-shadow">
                         {selectedBranch.location} 
                         <span className="w-1.5 h-1.5 rounded-full bg-white/50 inline-block"></span> 
@@ -575,7 +577,7 @@ export function Branches() {
                              strokeWidth={4} 
                              dot={false}
                             activeDot={{ r: 8, fill: '#A855F7', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(168,85,247,0.3))` }}
+                            style={{ filter: \`drop-shadow(0px 8px 12px rgba(168,85,247,0.3))\` }}
                             animationDuration={500}
                          />
                        </LineChart>
@@ -604,14 +606,14 @@ export function Branches() {
                   {(liveData[selectedBranch.id]?.topItems || []).map((item: any, idx: number) => (
                      <motion.div 
                         key={item.id}
-                        layoutId={`item-${item.id}`}
+                        layoutId={\`item-\${item.id}\`}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + (idx * 0.1) }}
                         onClick={() => setSelectedItem(item)}
                         className="bg-white/50 border border-white/80 rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg hover:border-emerald-500/30 hover:-translate-y-1 hover:bg-white transition-all group cursor-pointer"
                      >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${item.status === 'high' ? 'bg-emerald-100 text-emerald-600' : item.status === 'medium' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
+                        <div className={\`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm \${item.status === 'high' ? 'bg-emerald-100 text-emerald-600' : item.status === 'medium' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}\`}>
                            {item.status === 'high' ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
                         </div>
                         
@@ -645,7 +647,7 @@ export function Branches() {
                         </div>
 
                         <div className="flex flex-col items-end shrink-0 gap-1">
-                           <div className={`text-sm font-bold ${item.trend.startsWith('+') ? 'text-emerald-500' : 'text-orange-500'}`}>
+                           <div className={\`text-sm font-bold \${item.trend.startsWith('+') ? 'text-emerald-500' : 'text-orange-500'}\`}>
                               {item.trend}
                            </div>
                            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
@@ -677,7 +679,7 @@ export function Branches() {
                              strokeWidth={4} 
                              dot={false}
                             activeDot={{ r: 8, fill: '#10B981', stroke: '#fff', strokeWidth: 3 }}
-                            style={{ filter: `drop-shadow(0px 8px 12px rgba(16,185,129,0.3))` }}
+                            style={{ filter: \`drop-shadow(0px 8px 12px rgba(16,185,129,0.3))\` }}
                             animationDuration={500}
                          />
                        </LineChart>
@@ -702,7 +704,7 @@ export function Branches() {
                            <Bar dataKey="visitors" fill="#64748B" radius={[6, 6, 0, 0]}>
                               {
                                 (liveData[selectedBranch.id]?.visitorChart || []).map((entry: any, index: number) => (
-                                  <Cell key={`cell-${index}`} fill={index === 3 ? '#3B82F6' : '#CBD5E1'} />
+                                  <Cell key={\`cell-\${index}\`} fill={index === 3 ? '#3B82F6' : '#CBD5E1'} />
                                 ))
                               }
                            </Bar>
@@ -718,3 +720,6 @@ export function Branches() {
     </div>
   );
 }
+`
+
+fs.writeFileSync('src/views/Branches.tsx', code);
