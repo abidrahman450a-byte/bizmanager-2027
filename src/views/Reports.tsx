@@ -28,9 +28,28 @@ const reports = [
   { id: 5, name: 'Annual Financial Statement', date: 'Jan 10, 2026', size: '8.4 MB', type: 'Excel' },
 ];
 
-export function Reports() {
+export function Reports({ currentTab = 'Sales Report' }: { currentTab?: string }) {
   const [reportType, setReportType] = useState('sales');
   const [searchTerm, setSearchTerm] = useState('');
+
+  if (currentTab !== 'Sales Report') {
+    return (
+      <div className="flex flex-col gap-6 min-h-full text-slate-800">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900">{currentTab}</h2>
+        </div>
+        <div className="bg-white rounded-3xl p-10 shadow-sm border border-slate-100 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">{currentTab} Module</h3>
+            <p className="text-slate-500 max-w-md mx-auto">This module is currently under development. Please check back later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 min-h-full text-slate-800">

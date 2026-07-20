@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Plus, Filter, User, Mail, Phone, X, Activity, CheckCircle2, Clock, DollarSign, Calendar, Timer, Briefcase, TrendingUp, LogIn, LogOut, ArrowLeft } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { supabase } from '../lib/supabase';
 
 const generateHourlyData = () => {
   return [
@@ -26,40 +27,118 @@ const generateWeeklyData = () => {
 };
 
 const MOCK_EMPLOYEES = [
-  { id: 1, name: 'Amina Ali', role: 'Sales Rep', department: 'Downtown HQ', status: 'Active', email: 'amina@biz.com', phone: '+1 555-0101', performance: 92, sales: 12500, hours: 164, days: 22, attendanceRate: 98, absentDays: 0, avatar: '', clockIn: '08:15 AM', clockOut: '05:30 PM', todayTasks: 14, todaySales: 4500, transactions: 142, weeklyAvgSales: 28000, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
-  { id: 2, name: 'Bob Smith', role: 'Developer', department: 'Engineering', status: 'Active', email: 'bob@biz.com', phone: '+1 555-0102', performance: 88, sales: 0, hours: 158, days: 21, attendanceRate: 90, absentDays: 2, avatar: '', clockIn: '09:00 AM', clockOut: '06:00 PM', todayTasks: 8, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
-  { id: 3, name: 'Charlie Davis', role: 'Designer', department: 'Design', status: 'On Leave', email: 'charlie@biz.com', phone: '+1 555-0103', performance: 95, sales: 0, hours: 120, days: 15, attendanceRate: 85, absentDays: 5, avatar: '', clockIn: '-', clockOut: '-', todayTasks: 0, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
-  { id: 4, name: 'Diana Prince', role: 'HR Manager', department: 'Human Resources', status: 'Active', email: 'diana@biz.com', phone: '+1 555-0104', performance: 81, sales: 0, hours: 170, days: 23, attendanceRate: 100, absentDays: 0, avatar: '', clockIn: '08:30 AM', clockOut: '05:00 PM', todayTasks: 5, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
-  { id: 5, name: 'Evan Wright', role: 'Accountant', department: 'Finance', status: 'Active', email: 'evan@biz.com', phone: '+1 555-0105', performance: 89, sales: 0, hours: 160, days: 22, attendanceRate: 95, absentDays: 1, avatar: '', clockIn: '08:00 AM', clockOut: '04:30 PM', todayTasks: 9, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
-  { id: 6, name: 'Fiona Gallagher', role: 'Sales Rep', department: 'Uptown Branch', status: 'In Meeting', email: 'fiona@biz.com', phone: '+1 555-0106', performance: 94, sales: 8900, hours: 145, days: 19, attendanceRate: 92, absentDays: 1, avatar: '', clockIn: '08:45 AM', clockOut: 'In Progress', todayTasks: 11, todaySales: 3200, transactions: 95, weeklyAvgSales: 19500, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '1', name: 'Amina Ali', role: 'Sales Rep', department: 'Downtown HQ', status: 'Active', email: 'amina@biz.com', phone: '+1 555-0101', performance: 92, sales: 12500, hours: 164, days: 22, attendanceRate: 98, absentDays: 0, avatar: '', clockIn: '08:15 AM', clockOut: '05:30 PM', todayTasks: 14, todaySales: 4500, transactions: 142, weeklyAvgSales: 28000, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '2', name: 'Bob Smith', role: 'Developer', department: 'Engineering', status: 'Active', email: 'bob@biz.com', phone: '+1 555-0102', performance: 88, sales: 0, hours: 158, days: 21, attendanceRate: 90, absentDays: 2, avatar: '', clockIn: '09:00 AM', clockOut: '06:00 PM', todayTasks: 8, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '3', name: 'Charlie Davis', role: 'Designer', department: 'Design', status: 'On Leave', email: 'charlie@biz.com', phone: '+1 555-0103', performance: 95, sales: 0, hours: 120, days: 15, attendanceRate: 85, absentDays: 5, avatar: '', clockIn: '-', clockOut: '-', todayTasks: 0, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '4', name: 'Diana Prince', role: 'HR Manager', department: 'Human Resources', status: 'Active', email: 'diana@biz.com', phone: '+1 555-0104', performance: 81, sales: 0, hours: 170, days: 23, attendanceRate: 100, absentDays: 0, avatar: '', clockIn: '08:30 AM', clockOut: '05:00 PM', todayTasks: 5, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '5', name: 'Evan Wright', role: 'Accountant', department: 'Finance', status: 'Active', email: 'evan@biz.com', phone: '+1 555-0105', performance: 89, sales: 0, hours: 160, days: 22, attendanceRate: 95, absentDays: 1, avatar: '', clockIn: '08:00 AM', clockOut: '04:30 PM', todayTasks: 9, todaySales: 0, transactions: 0, weeklyAvgSales: 0, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
+  { id: '6', name: 'Fiona Gallagher', role: 'Sales Rep', department: 'Uptown Branch', status: 'In Meeting', email: 'fiona@biz.com', phone: '+1 555-0106', performance: 94, sales: 8900, hours: 145, days: 19, attendanceRate: 92, absentDays: 1, avatar: '', clockIn: '08:45 AM', clockOut: 'In Progress', todayTasks: 11, todaySales: 3200, transactions: 95, weeklyAvgSales: 19500, hourlyData: generateHourlyData(), weeklyData: generateWeeklyData() },
 ];
 
-export function Employees() {
-  const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
+export function Employees({ currentTab = 'Directory' }: { currentTab?: string }) {
+  const [employees, setEmployees] = useState<typeof MOCK_EMPLOYEES>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState<typeof MOCK_EMPLOYEES[0] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setEmployees(current => {
-        const newEmployees = [...current];
-        const randomIdx = Math.floor(Math.random() * newEmployees.length);
-        const statuses = ['Active', 'On Leave', 'In Meeting', 'Remote'];
-        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-        if(newEmployees[randomIdx].status !== 'On Leave') {
-           newEmployees[randomIdx] = { 
-             ...newEmployees[randomIdx], 
-             status: randomStatus,
-             performance: Math.max(60, Math.min(100, newEmployees[randomIdx].performance + (Math.floor(Math.random() * 5) - 2))),
-             todayTasks: newEmployees[randomIdx].todayTasks + Math.floor(Math.random() * 2),
-             todaySales: newEmployees[randomIdx].department.includes('HQ') || newEmployees[randomIdx].department.includes('Branch') ? newEmployees[randomIdx].todaySales + Math.floor(Math.random() * 50) : 0
-           };
-        }
-        return newEmployees;
-      });
-    }, 4000);
-    return () => clearInterval(interval);
+    fetchEmployees();
+
+    const subscription = supabase
+      .channel('public:employees')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, payload => {
+        fetchEmployees();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const mappedData = data.map(emp => ({
+          id: emp.id,
+          name: emp.name,
+          role: emp.role,
+          department: emp.department || 'N/A',
+          status: emp.status || 'Active',
+          email: emp.email,
+          phone: emp.phone || 'N/A',
+          performance: emp.performance || 85,
+          sales: 0,
+          hours: 160,
+          days: 22,
+          attendanceRate: emp.attendance_rate || 100,
+          absentDays: emp.absent_days || 0,
+          avatar: '',
+          clockIn: '09:00 AM',
+          clockOut: '05:00 PM',
+          todayTasks: Math.floor(Math.random() * 10),
+          todaySales: Math.floor(Math.random() * 1000),
+          transactions: Math.floor(Math.random() * 50),
+          weeklyAvgSales: Math.floor(Math.random() * 5000),
+          hourlyData: generateHourlyData(),
+          weeklyData: generateWeeklyData()
+        }));
+        setEmployees(mappedData);
+      } else {
+        setEmployees([]);
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      // Fallback to mock data if there is an error (e.g. no supabase keys setup)
+      setEmployees(MOCK_EMPLOYEES);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddEmployee = async () => {
+    const roles = ['Sales Rep', 'Developer', 'Designer', 'HR Manager', 'Accountant'];
+    const departments = ['HQ', 'Engineering', 'Design', 'Human Resources', 'Finance'];
+    const randomName = 'New Hire ' + Math.floor(Math.random() * 1000);
+    const newEmp = {
+      name: randomName,
+      role: roles[Math.floor(Math.random() * roles.length)],
+      department: departments[Math.floor(Math.random() * departments.length)],
+      email: `newhire${Math.floor(Math.random() * 1000)}@biz.com`,
+      status: 'Active',
+      performance: Math.floor(Math.random() * 20) + 80,
+      attendance_rate: 100,
+      absent_days: 0
+    };
+    
+    await supabase.from('employees').insert([newEmp]);
+  };
+
+  if (currentTab !== 'Directory') {
+    return (
+      <div className="flex flex-col gap-6 min-h-full text-slate-800">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900">{currentTab}</h2>
+        </div>
+        <div className="bg-white rounded-3xl p-10 shadow-sm border border-slate-100 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-4">
+              <Activity className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">{currentTab} Module</h3>
+            <p className="text-slate-500 max-w-md mx-auto">This module is currently under development. Please check back later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const filtered = employees.filter(emp => emp.name.toLowerCase().includes(searchTerm.toLowerCase()) || emp.role.toLowerCase().includes(searchTerm.toLowerCase()));
   const currentSelected = selectedEmployee ? employees.find(e => e.id === selectedEmployee.id) : null;
@@ -225,6 +304,7 @@ export function Employees() {
         <motion.button 
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={handleAddEmployee}
           className="bg-[#2563eb] hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" /> Add Employee
@@ -234,7 +314,13 @@ export function Employees() {
       <div className="flex flex-1 gap-6 overflow-hidden pb-4">
         {/* Main List */}
         <motion.div layout className="bg-white rounded-3xl border border-slate-100 flex-1 flex flex-col overflow-hidden p-6 relative z-10 shadow-sm">
-          <div className="flex justify-between items-center mb-6 gap-4">
+          {isLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563eb]"></div>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between items-center mb-6 gap-4">
             <div className="flex-1 max-w-md relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input 
@@ -342,6 +428,8 @@ export function Employees() {
                </div>
             )}
           </div>
+          </>
+          )}
         </motion.div>
       </div>
     </div>

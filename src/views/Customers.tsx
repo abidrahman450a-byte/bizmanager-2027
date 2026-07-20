@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Search, Plus, User, Phone, Mail, MapPin, DollarSign, Filter, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export function Customers() {
+export function Customers({ currentTab = 'All Customers' }: { currentTab?: string }) {
   const [searchQuery, setSearchQuery] = useState('');
   
   // mock data
@@ -13,6 +13,25 @@ export function Customers() {
     { id: '3', name: 'Mohamed Hassan', phone: '+252 61 1122334', email: 'mohamed@example.com', address: 'Bosaso', totalSpent: 450.00, status: 'inactive' },
     { id: '4', name: 'Fatima Abdi', phone: '+252 61 5566778', email: 'fatima@example.com', address: 'Kismayo', totalSpent: 3200.00, status: 'active' },
   ];
+
+  if (currentTab !== 'All Customers') {
+    return (
+      <div className="flex flex-col gap-6 min-h-full text-slate-800">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900">{currentTab}</h2>
+        </div>
+        <div className="bg-white rounded-3xl p-10 shadow-sm border border-slate-100 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">{currentTab} Module</h3>
+            <p className="text-slate-500 max-w-md mx-auto">This module is currently under development. Please check back later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-20">

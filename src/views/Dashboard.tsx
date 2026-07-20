@@ -1,8 +1,9 @@
-import React from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowUpRight, ArrowDownRight, Sparkles, Activity, BrainCircuit } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, BarChart, Bar, Legend
+  PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
 
 const lineData = [
@@ -16,11 +17,11 @@ const lineData = [
 ];
 
 const pieData = [
-  { name: 'Cunto', value: 40, color: '#2563eb' },
-  { name: 'Cabitaan', value: 20, color: '#10b981' },
-  { name: 'Electronics', value: 15, color: '#f97316' },
-  { name: 'Dharka', value: 15, color: '#8b5cf6' },
-  { name: 'Kale', value: 10, color: '#64748b' },
+  { name: 'Cunto', value: 40, color: '#0f172a' },
+  { name: 'Cabitaan', value: 20, color: '#334155' },
+  { name: 'Electronics', value: 15, color: '#64748b' },
+  { name: 'Dharka', value: 15, color: '#94a3b8' },
+  { name: 'Kale', value: 10, color: '#cbd5e1' },
 ];
 
 const barData = [
@@ -41,125 +42,203 @@ const recentOrders = [
 ];
 
 export function Dashboard() {
+  const [insightIndex, setInsightIndex] = useState(0);
+  
+  const insights = [
+    "AI Analysis: Sales for 'Electronics' category are projected to increase by 15% next month based on seasonal trends.",
+    "Optimization: Consider reducing inventory for 'Dharka' at Branch 2 to minimize storage costs.",
+    "Performance: Overall profit margin is up 4.2% compared to the previous quarter."
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setInsightIndex((prev) => (prev + 1) % insights.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <>
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col gap-8 pb-10"
+    >
+      {/* AI Insight Banner */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="bg-slate-900 rounded-3xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl shadow-slate-900/10 overflow-hidden relative"
+      >
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-slate-800 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center shrink-0 border border-slate-700">
+            <BrainCircuit className="w-6 h-6 text-indigo-400" />
+          </div>
+          <div className="overflow-hidden">
+            <h3 className="text-slate-400 text-sm font-semibold tracking-wide uppercase mb-1 flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> 
+              Executive Insights
+            </h3>
+            <AnimatePresence mode="wait">
+              <motion.p 
+                key={insightIndex}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="text-white font-medium md:text-lg"
+              >
+                {insights[insightIndex]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        <StatCard title="Total Sales" value="$12,500" trend="18%" />
-        <StatCard title="Profit" value="$10,200" trend="22%" />
-        <StatCard title="Expenses" value="$2,300" trend="8%" />
-        <StatCard title="Customers" value="512" trend="14%" />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <StatCard title="Total Revenue" value="$128,500" trend="18.2%" isUp={true} delay={0.1} />
+        <StatCard title="Net Profit" value="$42,200" trend="22.4%" isUp={true} delay={0.2} />
+        <StatCard title="Operating Costs" value="$28,300" trend="4.1%" isUp={false} delay={0.3} />
+        <StatCard title="Active Customers" value="1,204" trend="12.5%" isUp={true} delay={0.4} />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        
+      {/* Main Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Line Chart */}
-        <div className="xl:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-lg font-bold text-slate-900">Dashboard Overview</h2>
-            <div className="flex gap-5">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
-                <span className="text-sm font-medium text-slate-600">Sales</span>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="xl:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col"
+        >
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h2 className="text-xl font-bold font-display text-slate-900 mb-1">Financial Overview</h2>
+              <p className="text-slate-500 font-medium">Monthly revenue vs profit analysis</p>
+            </div>
+            <div className="flex gap-4 bg-slate-50 p-1.5 rounded-full border border-slate-100">
+              <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full shadow-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-900"></span>
+                <span className="text-xs font-bold text-slate-700 tracking-wide uppercase">Revenue</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>
-                <span className="text-sm font-medium text-slate-600">Profit</span>
+              <div className="flex items-center gap-2 px-3 py-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                <span className="text-xs font-bold text-slate-500 tracking-wide uppercase">Profit</span>
               </div>
             </div>
           </div>
-          <div className="h-[320px] w-full mt-auto">
+          <div className="h-[340px] w-full mt-auto">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={lineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.12}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0f172a" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#0f172a" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dy={15} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13}} dx={-10} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13, fontWeight: 500}} dy={15} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 13, fontWeight: 500}} dx={-10} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                  contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', fontWeight: 600 }}
                   cursor={{ stroke: '#e2e8f0', strokeWidth: 1, strokeDasharray: '4 4' }}
                 />
-                <Area type="monotone" dataKey="profit" stroke="none" fillOpacity={1} fill="url(#colorProfit)" />
-                <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#2563eb', stroke: '#fff', strokeWidth: 2}} />
-                <Line type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#10b981', stroke: '#fff', strokeWidth: 2}} />
+                <Area type="monotone" dataKey="sales" stroke="none" fillOpacity={1} fill="url(#colorSales)" />
+                <Line type="monotone" dataKey="sales" stroke="#0f172a" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#0f172a', stroke: '#fff', strokeWidth: 3}} />
+                <Line type="monotone" dataKey="profit" stroke="#cbd5e1" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#cbd5e1', stroke: '#fff', strokeWidth: 3}} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Pie Chart */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-          <h2 className="text-lg font-bold text-slate-900 mb-6 invisible">Top Categories</h2>
-          <div className="flex-1 relative min-h-[240px] flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col"
+        >
+          <div>
+            <h2 className="text-xl font-bold font-display text-slate-900 mb-1">Category Distribution</h2>
+            <p className="text-slate-500 font-medium">Sales breakdown by product</p>
+          </div>
+          <div className="flex-1 relative min-h-[260px] flex items-center justify-center mt-6">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={75}
-                  outerRadius={105}
-                  paddingAngle={3}
+                  innerRadius={80}
+                  outerRadius={115}
+                  paddingAngle={2}
                   dataKey="value"
                   stroke="none"
-                  cornerRadius={2}
                 >
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', fontWeight: 600 }}
                 />
               </PieChart>
             </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-3xl font-black text-slate-900 tracking-tight font-display">100%</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total</span>
+            </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-y-5 gap-x-2 mt-8 px-2">
+          <div className="grid grid-cols-2 gap-y-4 gap-x-2 mt-6">
             {pieData.map((item, index) => (
               <div key={index} className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
-                <span className="text-[13px] font-medium text-slate-600">{item.name}</span>
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
+                <span className="text-[14px] font-semibold text-slate-700">{item.name}</span>
               </div>
             ))}
           </div>
-        </div>
-
+        </motion.div>
       </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         
         {/* Recent Orders */}
-        <div className="xl:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Recent Orders</h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="xl:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100"
+        >
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-bold font-display text-slate-900">Recent Transactions</h2>
+            <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors">View All</button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="pb-4 text-sm font-medium text-slate-500">Order ID</th>
-                  <th className="pb-4 text-sm font-medium text-slate-500">Customer</th>
-                  <th className="pb-4 text-sm font-medium text-slate-500">Amount</th>
-                  <th className="pb-4 text-sm font-medium text-slate-500">Status</th>
+                  <th className="pb-5 text-sm font-semibold text-slate-400 tracking-wide uppercase">Transaction ID</th>
+                  <th className="pb-5 text-sm font-semibold text-slate-400 tracking-wide uppercase">Client</th>
+                  <th className="pb-5 text-sm font-semibold text-slate-400 tracking-wide uppercase">Value</th>
+                  <th className="pb-5 text-sm font-semibold text-slate-400 tracking-wide uppercase text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {recentOrders.map((order, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 text-sm text-slate-600 font-medium">{order.id}</td>
-                    <td className="py-4 text-sm font-bold text-slate-800">{order.customer}</td>
-                    <td className="py-4 text-sm font-bold text-slate-900">{order.amount}</td>
-                    <td className="py-4">
-                      <span className={`px-3 py-1 text-[11px] font-bold rounded-full ${
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="py-5 text-sm text-slate-500 font-medium group-hover:text-slate-700 transition-colors">{order.id}</td>
+                    <td className="py-5 text-sm font-bold text-slate-900">{order.customer}</td>
+                    <td className="py-5 text-sm font-black text-slate-900">{order.amount}</td>
+                    <td className="py-5 text-right">
+                      <span className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold rounded-lg ${
                         order.color === 'emerald' 
-                          ? 'bg-emerald-50 text-emerald-600' 
-                          : 'bg-orange-50 text-orange-600'
+                          ? 'bg-emerald-50 text-emerald-700' 
+                          : 'bg-amber-50 text-amber-700'
                       }`}>
                         {order.status}
                       </span>
@@ -169,56 +248,68 @@ export function Dashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
         {/* Income vs Expenses */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-slate-900">Income vs Expenses</h2>
-            <div className="flex gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]"></span>
-                <span className="text-xs font-medium text-slate-600">Income</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>
-                <span className="text-xs font-medium text-slate-600">Expenses</span>
-              </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col"
+        >
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h2 className="text-xl font-bold font-display text-slate-900 mb-1">Cash Flow</h2>
+              <p className="text-slate-500 font-medium text-sm">Income vs Expenses</p>
+            </div>
+            <div className="flex gap-2">
+              <span className="w-3 h-3 rounded-full bg-slate-900"></span>
+              <span className="w-3 h-3 rounded-full bg-slate-200"></span>
             </div>
           </div>
-          <div className="h-[280px] w-full">
+          <div className="h-[300px] w-full mt-auto">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} dx={-10} />
+              <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barGap={6}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 500}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 500}} dx={-10} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', fontWeight: 600 }}
+                  cursor={{ fill: '#f8fafc', radius: 8 }}
                 />
-                <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
-                <Bar dataKey="expenses" fill="#2563eb" radius={[4, 4, 0, 0]} barSize={12} />
+                <Bar dataKey="income" fill="#0f172a" radius={[6, 6, 6, 6]} barSize={14} />
+                <Bar dataKey="expenses" fill="#e2e8f0" radius={[6, 6, 6, 6]} barSize={14} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
-
+        </motion.div>
       </div>
-    </>
+    </motion.div>
   );
 }
 
-function StatCard({ title, value, trend }: { title: string, value: string, trend: string }) {
+function StatCard({ title, value, trend, isUp, delay }: { title: string, value: string, trend: string, isUp: boolean, delay: number }) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between h-[130px]">
-      <h3 className="text-slate-500 text-[15px] font-medium">{title}</h3>
-      <div className="flex justify-between items-end">
-        <p className="text-[32px] leading-none font-bold text-slate-800">{value}</p>
-        <div className="flex items-center gap-1 text-[#10b981] font-bold mb-1">
-          <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-          <span className="text-[15px]">{trend}</span>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      className="bg-white p-7 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-[150px] relative overflow-hidden group hover:shadow-md hover:border-slate-200 transition-all"
+    >
+      <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity duration-300">
+        <Activity className="w-24 h-24 text-slate-900 -mr-6 -mt-6" />
+      </div>
+      
+      <div className="relative z-10">
+        <h3 className="text-slate-500 text-[15px] font-semibold tracking-tight mb-4">{title}</h3>
+        <div className="flex justify-between items-end">
+          <p className="text-4xl tracking-tighter font-black text-slate-900 font-display">{value}</p>
+          <div className={`flex items-center gap-1.5 font-bold mb-1.5 px-2.5 py-1 rounded-lg ${isUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+            {isUp ? <ArrowUpRight className="w-4 h-4 stroke-[3]" /> : <ArrowDownRight className="w-4 h-4 stroke-[3]" />}
+            <span className="text-[13px]">{trend}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

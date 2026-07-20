@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Activity } from 'lucide-react';
+import { ArrowRight, Activity, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface LoginProps {
   onLogin: () => void;
@@ -9,11 +10,30 @@ interface LoginProps {
 export function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (username && password) {
-      onLogin();
+      setLoading(true);
+      setError('');
+      try {
+        // Attempt to sign in with Supabase
+        const { error } = await supabase.auth.signInWithPassword({
+          email: username,
+          password: password,
+        });
+        if (error) {
+          throw error;
+        }
+        // Auth state listener in App will handle redirect
+        onLogin();
+      } catch (err: any) {
+        setError(err.message || 'Failed to login');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -44,13 +64,18 @@ export function Login({ onLogin }: LoginProps) {
           onSubmit={handleSubmit} 
           className="space-y-4"
         >
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm px-4 py-3 rounded-xl mb-4">
+              {error}
+            </div>
+          )}
           <div>
             <input 
-              type="text" 
+              type="email" 
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username" 
+              placeholder="Email address" 
               className="w-full bg-[#11214D] border border-blue-500/20 rounded-xl px-5 py-4 text-sm text-white placeholder:text-blue-200/40 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
             />
           </div>
@@ -68,10 +93,17 @@ export function Login({ onLogin }: LoginProps) {
 
           <button 
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl py-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 group mt-6 shadow-lg shadow-blue-900/50"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white rounded-xl py-4 text-sm font-semibold transition-all flex items-center justify-center gap-2 group mt-6 shadow-lg shadow-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                Sign In
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </button>
         </motion.form>
       </div>

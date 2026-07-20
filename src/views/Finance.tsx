@@ -28,8 +28,209 @@ const transactions = [
   { id: 5, name: 'Facebook Ads', type: 'expense', amount: 1200.00, date: 'Jul 09', status: 'Completed', icon: Activity },
 ];
 
-export function Finance() {
-  const [activeTab, setActiveTab] = useState('overview');
+export function Finance({ currentTab = 'Overview' }: { currentTab?: string }) {
+  if (currentTab === 'Transactions') {
+    return (
+      <div className="flex flex-col gap-8 min-h-full text-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-3xl font-bold font-display text-slate-900 tracking-tight"
+            >
+              Transactions
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-500 font-medium mt-1"
+            >
+              Manage incoming and outgoing payments
+            </motion.p>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input type="text" placeholder="Search transactions..." className="pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-[250px]" />
+             </div>
+             <motion.button 
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               className="bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition-colors hover:bg-slate-50"
+             >
+               <Filter className="w-4 h-4" /> Filter
+             </motion.button>
+          </div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Transaction</th>
+                  <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
+                  <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="pb-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {transactions.map((tx, i) => (
+                  <motion.tr 
+                    key={tx.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    className="hover:bg-slate-50/50 transition-colors group"
+                  >
+                    <td className="py-4">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'}`}>
+                          <tx.icon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{tx.name}</div>
+                          <div className="text-sm text-slate-500 capitalize">{tx.type}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <div className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-slate-400" />
+                        {tx.date}
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <span className={`px-3 py-1 text-xs font-bold rounded-full inline-flex items-center gap-1.5 ${
+                        tx.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${tx.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                        {tx.status}
+                      </span>
+                    </td>
+                    <td className="py-4 text-right">
+                      <div className={`font-bold text-lg ${tx.type === 'income' ? 'text-emerald-600' : 'text-slate-900'}`}>
+                        {tx.type === 'income' ? '+' : '-'}${tx.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (currentTab === 'P&L') {
+    return (
+      <div className="flex flex-col gap-8 min-h-full text-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-3xl font-bold font-display text-slate-900 tracking-tight"
+            >
+              Profit & Loss
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-slate-500 font-medium mt-1"
+            >
+              Monthly income statement overview
+            </motion.p>
+          </div>
+          <div className="flex items-center gap-3">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white border border-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition-colors hover:bg-slate-50"
+            >
+              <Download className="w-4 h-4" /> Export PDF
+            </motion.button>
+          </div>
+        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 flex flex-col"
+        >
+          <div className="flex justify-between items-center mb-8 pb-6 border-b border-slate-100">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Income Statement</h3>
+              <p className="text-sm text-slate-500 font-medium">For the period ending Jul 2026</p>
+            </div>
+            <select className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 outline-none font-medium">
+              <option>July 2026</option>
+              <option>June 2026</option>
+              <option>Q2 2026</option>
+            </select>
+          </div>
+          
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Revenue</h4>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Gross Sales</span>
+                <span className="font-bold text-slate-900">$131,500.00</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Returns & Allowances</span>
+                <span className="font-bold text-slate-900">-$2,100.00</span>
+              </div>
+              <div className="flex justify-between py-3 border-b-2 border-slate-200">
+                <span className="text-slate-900 font-bold">Net Revenue</span>
+                <span className="font-black text-emerald-600">$129,400.00</span>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 mt-8">Expenses</h4>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Payroll</span>
+                <span className="font-bold text-slate-900">$12,000.00</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Marketing</span>
+                <span className="font-bold text-slate-900">$4,500.00</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Rent & Utilities</span>
+                <span className="font-bold text-slate-900">$3,800.00</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Software & Subscriptions</span>
+                <span className="font-bold text-slate-900">$1,200.00</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-50">
+                <span className="text-slate-600 font-medium">Other Operating Expenses</span>
+                <span className="font-bold text-slate-900">$2,500.00</span>
+              </div>
+              <div className="flex justify-between py-3 border-b-2 border-slate-200">
+                <span className="text-slate-900 font-bold">Total Expenses</span>
+                <span className="font-black text-rose-600">$24,000.00</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-2xl p-6 mt-8 flex justify-between items-center">
+              <span className="text-lg font-bold text-slate-900 uppercase tracking-wide">Net Profit</span>
+              <span className="text-3xl font-black text-emerald-600">$105,400.00</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 min-h-full text-slate-800">

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutGrid, Building2, Package, Users, User,
   DollarSign, FileText, CreditCard, LogOut, ChevronDown, 
-  Activity, Bell, Settings, HelpCircle, Hexagon, Sparkles
+  Activity, Bell, Settings, HelpCircle, Hexagon, Sparkles,
+  RefreshCw, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Dashboard } from './views/Dashboard';
@@ -15,12 +16,43 @@ import { Login } from './views/Login';
 import { Customers } from './views/Customers';
 import { Settings as SettingsView } from './views/Settings';
 import { ViewState } from './types';
+import { supabase } from './lib/supabase';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentView, setCurrentView] = useState<ViewState>('dashboard');
+  const [currentSubView, setCurrentSubView] = useState<string | null>(null);
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<'syncing' | 'synced'>('synced');
+
+  useEffect(() => {
+    // Simulate periodic background synchronization
+    const syncInterval = setInterval(() => {
+      setSyncStatus('syncing');
+      setTimeout(() => {
+        setSyncStatus('synced');
+      }, 2000);
+    }, 15000); // Sync every 15 seconds for demonstration
+    
+    return () => clearInterval(syncInterval);
+  }, []);
+
+  useEffect(() => {
+    // Check current auth status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   if (!isAuthenticated) {
     return <Login onLogin={() => setIsAuthenticated(true)} />;
@@ -29,12 +61,12 @@ export default function App() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard />;
-      case 'branches': return <Branches />;
-      case 'inventory': return <Inventory />;
-      case 'employees': return <Employees />;
-      case 'finance': return <Finance />;
-      case 'reports': return <Reports />;
-      case 'customers': return <Customers />;
+      case 'branches': return <Branches currentTab={currentSubView || 'All Branches'} />;
+      case 'inventory': return <Inventory currentTab={currentSubView || 'Stock Levels'} />;
+      case 'employees': return <Employees currentTab={currentSubView || 'Directory'} />;
+      case 'finance': return <Finance currentTab={currentSubView || 'Overview'} />;
+      case 'reports': return <Reports currentTab={currentSubView || 'Sales Report'} />;
+      case 'customers': return <Customers currentTab={currentSubView || 'All Customers'} />;
       case 'settings': return <SettingsView />;
       default: return (
         <div className="flex flex-col items-center justify-center h-[50vh] text-center">
@@ -63,8 +95,7 @@ export default function App() {
     { id: 'customers', icon: <Users className="w-[18px] h-[18px]" />, label: 'Customers', subItems: ['All Customers', 'VIP Group', 'Feedback'] },
     { id: 'employees', icon: <User className="w-[18px] h-[18px]" />, label: 'Employees', subItems: ['Directory', 'Attendance', 'Payroll'] },
     { id: 'finance', icon: <DollarSign className="w-[18px] h-[18px]" />, label: 'Finance', subItems: ['Overview', 'Transactions', 'P&L'] },
-    { id: 'reports', icon: <FileText className="w-[18px] h-[18px]" />, label: 'Reports', subItems: ['Sales Report', 'Tax Report', 'Custom'] },
-    { id: 'expenses', icon: <CreditCard className="w-[18px] h-[18px]" />, label: 'Expenses', subItems: ['Petty Cash', 'Bills', 'Claims'] },
+    { id: 'reports', icon: <FileText className="w-[18px] h-[18px]" />, label: 'Reports', subItems: ['Sales Report', 'Tax Report', 'Custom'] }
   ];
 
   return (
@@ -88,7 +119,7 @@ export default function App() {
             <Sparkles className="w-3 h-3 text-blue-200 absolute -top-1 -right-1" />
           </div>
           <div>
-            <h1 className="font-black text-xl leading-tight tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">BIZMANAGER</h1>
+            <h1 className="font-black font-display text-xl leading-tight tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">BIZMANAGER</h1>
           </div>
         </div>
 
@@ -102,8 +133,15 @@ export default function App() {
               active={currentView === item.id} 
               expanded={expandedMenu === item.id}
               subItems={item.subItems}
-              onClick={() => setCurrentView(item.id as ViewState)} 
+              onClick={() => {
+                setCurrentView(item.id as ViewState);
+                setCurrentSubView(null);
+              }} 
               onToggle={() => toggleMenu(item.id)}
+              onSubItemClick={(sub) => {
+                setCurrentView(item.id as ViewState);
+                setCurrentSubView(sub);
+              }}
             />
           ))}
           
@@ -130,11 +168,24 @@ export default function App() {
             animate={{ opacity: 1, x: 0 }}
             key={currentView}
           >
-            <h1 className="text-2xl font-bold text-slate-900 capitalize tracking-tight">
+            <h1 className="text-2xl font-bold font-display text-slate-900 capitalize tracking-tight">
               {currentView === 'dashboard' ? 'Dashboard Overview' : currentView.replace('_', ' ')}
             </h1>
           </motion.div>
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 mr-2 transition-all">
+              {syncStatus === 'syncing' ? (
+                <>
+                  <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />
+                  <span className="text-xs font-bold text-slate-500">Syncing data...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-bold text-slate-500">System up to date</span>
+                </>
+              )}
+            </div>
             <button className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
               <Activity className="w-[18px] h-[18px]" />
             </button>
@@ -142,6 +193,7 @@ export default function App() {
               <Bell className="w-[18px] h-[18px] group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </button>
+            
             <div className="relative ml-2">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -171,12 +223,18 @@ export default function App() {
                       <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors">
                         <User className="w-4 h-4 text-slate-400" /> My Profile
                       </button>
-                      <button className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors">
+                      <button 
+                        onClick={() => {
+                          setCurrentView('settings');
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+                      >
                         <Settings className="w-4 h-4 text-slate-400" /> Settings
                       </button>
                       <div className="h-px bg-slate-100 my-1 mx-2" />
                       <button 
-                        onClick={() => setIsAuthenticated(false)}
+                        onClick={() => supabase.auth.signOut()}
                         className="flex items-center gap-3 w-full px-3 py-2 text-sm font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors"
                       >
                         <LogOut className="w-4 h-4" /> Log Out
@@ -224,15 +282,18 @@ function NavItem({
   expanded = false, 
   subItems, 
   onClick,
-  onToggle
+  onToggle,
+  onSubItemClick
 }: { 
+  key?: React.Key,
   icon: React.ReactNode, 
   label: string, 
   active?: boolean, 
   expanded?: boolean, 
   subItems?: string[], 
   onClick?: () => void,
-  onToggle?: () => void
+  onToggle?: () => void,
+  onSubItemClick?: (sub: string) => void
 }) {
   const hasDropdown = subItems && subItems.length > 0;
 
@@ -277,7 +338,7 @@ function NavItem({
                   initial={{ x: -10, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: idx * 0.05 }}
-                  onClick={onClick} // Just activates parent view for now
+                  onClick={() => onSubItemClick ? onSubItemClick(sub) : onClick?.()}
                   className="relative w-full text-left py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors group flex items-center"
                 >
                   <div className="absolute -left-6 w-3 h-px bg-slate-800 group-hover:bg-blue-500 transition-colors" />
