@@ -1,135 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { Package, Search, Filter, Plus, Box, AlertCircle, ArrowUpRight, ArrowDownRight, Edit3, Trash2, ArrowLeft, Archive, TrendingUp, Calendar, AlertTriangle, Clock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
-const MOCK_INVENTORY = [
-  { 
-    id: 1, 
-    name: 'Wireless Headphones Pro', 
-    sku: 'WH-PRO-01', 
-    category: 'Electronics', 
-    stock: 145, 
-    status: 'In Stock', 
-    price: 299.99, 
-    lastRestocked: '2 days ago', 
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600', 
-    trend: [10, 20, 15, 25, 30, 45, 50],
-    totalReceived: 500,
-    totalSold: 355,
-    expiringSoon: 0,
-    revenue: 106496.45,
-    salesData: [
-      { date: 'Mon', sold: 45 }, { date: 'Tue', sold: 52 }, { date: 'Wed', sold: 38 },
-      { date: 'Thu', sold: 65 }, { date: 'Fri', sold: 48 }, { date: 'Sat', sold: 75 }, { date: 'Sun', sold: 32 }
-    ],
-    stockHistory: [
-      { month: 'Jan', stock: 400 }, { month: 'Feb', stock: 350 }, { month: 'Mar', stock: 280 },
-      { month: 'Apr', stock: 420 }, { month: 'May', stock: 210 }, { month: 'Jun', stock: 145 }
-    ]
-  },
-  { 
-    id: 2, 
-    name: 'Ergonomic Desk Chair', 
-    sku: 'FUR-DC-02', 
-    category: 'Furniture', 
-    stock: 12, 
-    status: 'Low Stock', 
-    price: 199.50, 
-    lastRestocked: '1 week ago', 
-    image: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&q=80&w=600', 
-    trend: [5, 5, 4, 3, 2, 2, 1],
-    totalReceived: 100,
-    totalSold: 88,
-    expiringSoon: 0,
-    revenue: 17556.00,
-    salesData: [
-      { date: 'Mon', sold: 2 }, { date: 'Tue', sold: 4 }, { date: 'Wed', sold: 1 },
-      { date: 'Thu', sold: 5 }, { date: 'Fri', sold: 3 }, { date: 'Sat', sold: 8 }, { date: 'Sun', sold: 2 }
-    ],
-    stockHistory: [
-      { month: 'Jan', stock: 80 }, { month: 'Feb', stock: 65 }, { month: 'Mar', stock: 50 },
-      { month: 'Apr', stock: 40 }, { month: 'May', stock: 25 }, { month: 'Jun', stock: 12 }
-    ]
-  },
-  { 
-    id: 3, 
-    name: 'Organic Energy Drink', 
-    sku: 'BEV-ORG-03', 
-    category: 'Consumables', 
-    stock: 850, 
-    status: 'In Stock', 
-    price: 4.50, 
-    lastRestocked: '1 month ago', 
-    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600', 
-    trend: [30, 25, 20, 15, 10, 5, 0],
-    totalReceived: 2000,
-    totalSold: 1150,
-    expiringSoon: 120,
-    revenue: 5175.00,
-    salesData: [
-      { date: 'Mon', sold: 145 }, { date: 'Tue', sold: 152 }, { date: 'Wed', sold: 138 },
-      { date: 'Thu', sold: 165 }, { date: 'Fri', sold: 148 }, { date: 'Sat', sold: 275 }, { date: 'Sun', sold: 127 }
-    ],
-    stockHistory: [
-      { month: 'Jan', stock: 1800 }, { month: 'Feb', stock: 1550 }, { month: 'Mar', stock: 1280 },
-      { month: 'Apr', stock: 1120 }, { month: 'May', stock: 950 }, { month: 'Jun', stock: 850 }
-    ]
-  },
-  { 
-    id: 4, 
-    name: '4K Ultra HD Monitor', 
-    sku: 'MON-4K-04', 
-    category: 'Electronics', 
-    stock: 56, 
-    status: 'In Stock', 
-    price: 450.00, 
-    lastRestocked: '3 days ago', 
-    image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&q=80&w=600', 
-    trend: [20, 25, 22, 30, 28, 35, 40],
-    totalReceived: 150,
-    totalSold: 94,
-    expiringSoon: 0,
-    revenue: 42300.00,
-    salesData: [
-      { date: 'Mon', sold: 5 }, { date: 'Tue', sold: 8 }, { date: 'Wed', sold: 6 },
-      { date: 'Thu', sold: 12 }, { date: 'Fri', sold: 9 }, { date: 'Sat', sold: 15 }, { date: 'Sun', sold: 10 }
-    ],
-    stockHistory: [
-      { month: 'Jan', stock: 120 }, { month: 'Feb', stock: 110 }, { month: 'Mar', stock: 95 },
-      { month: 'Apr', stock: 85 }, { month: 'May', stock: 70 }, { month: 'Jun', stock: 56 }
-    ]
-  },
-  { 
-    id: 5, 
-    name: 'Fresh Roast Coffee Beans', 
-    sku: 'COF-FR-05', 
-    category: 'Consumables', 
-    stock: 45, 
-    status: 'Low Stock', 
-    price: 18.99, 
-    lastRestocked: 'Yesterday', 
-    image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&q=80&w=600', 
-    trend: [40, 45, 50, 48, 55, 60, 65],
-    totalReceived: 300,
-    totalSold: 255,
-    expiringSoon: 15,
-    revenue: 4842.45,
-    salesData: [
-      { date: 'Mon', sold: 25 }, { date: 'Tue', sold: 32 }, { date: 'Wed', sold: 28 },
-      { date: 'Thu', sold: 35 }, { date: 'Fri', sold: 40 }, { date: 'Sat', sold: 55 }, { date: 'Sun', sold: 40 }
-    ],
-    stockHistory: [
-      { month: 'Jan', stock: 250 }, { month: 'Feb', stock: 200 }, { month: 'Mar', stock: 160 },
-      { month: 'Apr', stock: 120 }, { month: 'May', stock: 80 }, { month: 'Jun', stock: 45 }
-    ]
-  }
-];
+
 
 export function Inventory({ currentTab = 'Stock Levels' }: { currentTab?: string }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedItem, setSelectedItem] = useState<typeof MOCK_INVENTORY[0] | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState('All Branches');
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error) {
+        console.error('Error fetching products:', error);
+        return;
+      }
+      if (data) {
+        const formatted = data.map(p => ({
+          id: p.id,
+          name: p.name,
+          sku: p.sku || 'N/A',
+          category: p.category || 'General',
+          branch: 'Main HQ',
+          stock: p.stock_quantity || 0,
+          status: p.stock_quantity <= (p.low_stock_limit || 5) ? (p.stock_quantity === 0 ? 'Out of Stock' : 'Low Stock') : 'In Stock',
+          price: p.selling_price || 0,
+          lastRestocked: new Date(p.created_at).toLocaleDateString(),
+          image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600',
+          trend: [10, 20, 15, 25, 30, 45, 50],
+          totalReceived: 500,
+          totalSold: 355,
+          expiringSoon: 0,
+          revenue: (p.selling_price || 0) * 355,
+          salesData: [
+            { date: 'Mon', sold: 45 }, { date: 'Tue', sold: 52 }, { date: 'Wed', sold: 38 },
+            { date: 'Thu', sold: 65 }, { date: 'Fri', sold: 48 }, { date: 'Sat', sold: 75 }, { date: 'Sun', sold: 32 }
+          ],
+          stockHistory: [
+            { month: 'Jan', stock: 400 }, { month: 'Feb', stock: 350 }, { month: 'Mar', stock: 280 },
+            { month: 'Apr', stock: 420 }, { month: 'May', stock: 210 }, { month: 'Jun', stock: 145 }
+          ]
+        }));
+        setInventoryItems(formatted);
+      }
+    };
+
+    fetchProducts();
+
+    const subscription = supabase
+      .channel('products_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, fetchProducts)
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   if (currentTab !== 'Stock Levels') {
     return (
@@ -150,13 +81,15 @@ export function Inventory({ currentTab = 'Stock Levels' }: { currentTab?: string
     );
   }
 
-  const filteredItems = MOCK_INVENTORY.filter(item => {
+  const filteredItems = inventoryItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesBranch = selectedBranch === 'All Branches' || item.branch === selectedBranch;
+    return matchesSearch && matchesCategory && matchesBranch;
   });
 
   const categories = ['All', 'Electronics', 'Furniture', 'Consumables'];
+  const branches = ['All Branches', 'Main HQ', 'Downtown Branch', 'Westside Mall'];
 
   if (selectedItem) {
     return (
@@ -216,6 +149,10 @@ export function Inventory({ currentTab = 'Stock Levels' }: { currentTab?: string
                 </div>
                 
                 <div className="space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <span className="text-sm font-medium text-slate-500">Branch</span>
+                    <span className="text-sm font-bold text-slate-900 flex items-center gap-1.5"><Box className="w-3.5 h-3.5 text-blue-500"/> {selectedItem.branch}</span>
+                  </div>
                   <div className="flex justify-between items-center border-b border-slate-100 pb-3">
                     <span className="text-sm font-medium text-slate-500">Category</span>
                     <span className="text-sm font-bold text-slate-900">{selectedItem.category}</span>
@@ -396,6 +333,20 @@ export function Inventory({ currentTab = 'Stock Levels' }: { currentTab?: string
           </div>
           
           <div className="flex gap-3 w-full md:w-auto">
+            <div className="relative">
+              <select
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="w-full md:w-auto appearance-none pl-4 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-bold text-slate-700"
+              >
+                {branches.map(branch => (
+                  <option key={branch} value={branch}>{branch}</option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
             <div className="relative flex-1 md:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
@@ -447,7 +398,13 @@ export function Inventory({ currentTab = 'Stock Levels' }: { currentTab?: string
                 </div>
                 
                 <div className="p-5 flex flex-col flex-1">
-                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">{item.category}</div>
+                  <div className="flex justify-between items-center mb-1">
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{item.category}</div>
+                    <div className="text-[10px] font-bold text-blue-500 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded flex items-center gap-1">
+                      <Box className="w-3 h-3" />
+                      {item.branch}
+                    </div>
+                  </div>
                   <h3 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1 mb-1">{item.name}</h3>
                   <div className="text-xs font-medium text-slate-500 mb-4">{item.sku}</div>
                   

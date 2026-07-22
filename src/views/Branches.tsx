@@ -1,79 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { motion } from 'motion/react';
 import { MapPin, Users, Package, ShoppingCart, ArrowRight, ArrowLeft, Plus, Search, AlertTriangle, Calendar, PackageMinus, Edit, Trash2 } from 'lucide-react';
 
-const MOCK_BRANCHES = [
-  { 
-    id: 1, 
-    name: 'Downtown Hub', 
-    location: 'New York, NY', 
-    initialRevenue: 45200, 
-    status: 'Optimal',
-    itemsSold: 1245,
-    inventoryStock: 8500,
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200&h=800',
-    description: 'Our flagship store located in the heart of downtown, offering the full range of premium products and in-person consultations.'
-  },
-  { 
-    id: 2, 
-    name: 'Westside Branch', 
-    location: 'Los Angeles, CA', 
-    initialRevenue: 38900, 
-    status: 'Optimal',
-    itemsSold: 980,
-    inventoryStock: 6200,
-    image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=1200&h=800',
-    description: 'A modern, airy space serving the West coast with high-tech gear and accessories.'
-  },
-  { 
-    id: 3, 
-    name: 'North Metro', 
-    location: 'Chicago, IL', 
-    initialRevenue: 29500, 
-    status: 'Review',
-    itemsSold: 654,
-    inventoryStock: 4100,
-    image: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&q=80&w=1200&h=800',
-    description: 'Serving the midwest region, focusing on B2B office equipment and large scale orders.'
-  },
-  { 
-    id: 4, 
-    name: 'Eastside Store', 
-    location: 'Miami, FL', 
-    initialRevenue: 31200, 
-    status: 'Optimal',
-    itemsSold: 812,
-    inventoryStock: 5400,
-    image: 'https://images.unsplash.com/photo-1577416412292-747c6607f055?auto=format&fit=crop&q=80&w=1200&h=800',
-    description: 'Our newest location, bringing top-tier consumer electronics to the sunny southeast.'
-  },
-];
 
-type BranchInventoryItem = {
-  id: string;
-  branchId: number;
-  name: string;
-  totalAdded: number;
-  sold: number;
-  damaged: number;
-  expirationDate: string;
-};
-
-const INITIAL_INVENTORY: BranchInventoryItem[] = [
-  { id: '1', branchId: 1, name: 'Wireless Headphones Pro', totalAdded: 500, sold: 150, damaged: 5, expirationDate: '2027-12-31' },
-  { id: '2', branchId: 1, name: 'Smartwatch Series 5', totalAdded: 300, sold: 120, damaged: 2, expirationDate: '2026-10-15' },
-  { id: '3', branchId: 2, name: 'Ergonomic Chair', totalAdded: 150, sold: 40, damaged: 1, expirationDate: 'N/A' },
-  { id: '4', branchId: 1, name: 'Organic Coffee Beans', totalAdded: 1000, sold: 800, damaged: 10, expirationDate: '2026-08-20' },
-];
 
 export function Branches({ currentTab = 'All Branches' }: { currentTab?: string }) {
-  const [selectedBranch, setSelectedBranch] = useState<typeof MOCK_BRANCHES[0] | null>(null);
-  const [inventory, setInventory] = useState<BranchInventoryItem[]>(INITIAL_INVENTORY);
+  const [selectedBranch, setSelectedBranch] = useState<any | null>(null);
+  const [inventory, setInventory] = useState<any[]>([]);
+  const [branches, setBranches] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Modal state for adding/registering
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newItem, setNewItem] = useState({ name: '', totalAdded: 0, expirationDate: '' });
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      const { data, error } = await supabase.from('branches').select('*');
+      if (data) {
+        const formatted = data.map(b => ({
+          id: b.id,
+          name: b.name,
+          location: b.location || 'Unknown',
+          initialRevenue: 0,
+          status: b.status === 'active' ? 'Optimal' : 'Review',
+          itemsSold: 0,
+          inventoryStock: 0,
+          image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200&h=800',
+          description: 'Branch location'
+        }));
+        setBranches(formatted);
+      }
+    };
+
+    const fetchInventory = async () => {
+      // In real scenario we would fetch inventory joined with products
+      const { data, error } = await supabase.from('inventory').select('*, products(*)');
+      if (data) {
+        const formatted = data.map(i => ({
+          id: i.id,
+          branchId: null, // Depending on schema, we need branch_id, but here it's simple
+          name: i.products?.name || 'Unknown Item',
+          totalAdded: i.quantity,
+          sold: 0,
+          damaged: 0,
+          expirationDate: 'N/A'
+        }));
+        setInventory(formatted);
+      }
+    };
+
+    fetchBranches();
+    fetchInventory();
+
+    const branchesSub = supabase.channel('branches_changes').on('postgres_changes', { event: '*', schema: 'public', table: 'branches' }, fetchBranches).subscribe();
+    const invSub = supabase.channel('inventory_changes').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchInventory).subscribe();
+
+    return () => {
+      branchesSub.unsubscribe();
+      invSub.unsubscribe();
+    };
+  }, []);
 
   if (currentTab !== 'All Branches') {
     return (
@@ -329,7 +317,7 @@ export function Branches({ currentTab = 'All Branches' }: { currentTab?: string 
 
       {/* Grid of Branches */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {MOCK_BRANCHES.map((branch, idx) => (
+        {branches.map((branch, idx) => (
           <motion.div 
             key={branch.id}
             initial={{ opacity: 0, y: 30 }}
